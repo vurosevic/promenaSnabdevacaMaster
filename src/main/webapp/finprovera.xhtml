@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+
+    <body>
+        <f:metadata>
+            <f:viewAction action="#{MBFinProvera.refresh()}"/>
+        </f:metadata>
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+
+                <h:form id="frmFinProvera">
+                    <center>
+                    <p:dataTable  id="fpDT" emptyMessage="Нема података"
+                                  value="#{MBFinProvera.lazyModel}" var="fp" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{fp.id}"
+                              selection="#{MBFinProvera.selectPromenaSnabdevaca}" lazy="true">
+                    <f:facet name="header">
+                        <p:outputLabel value="Провера захтева за промену снабдевача" />
+                    </f:facet>                     
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    
+                    <p:column>
+                        <f:facet name="header" >Датум пријема</f:facet>
+                        <center>
+                        <p:outputLabel value="#{fp.datumPrijema}" style="text-align: center">
+                            <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                        </p:outputLabel>
+                        </center>
+                    </p:column>
+                    
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{fp.kupac.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Адреса седишта</f:facet>
+                            #{fp.kupac.adresa}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >ПИБ</f:facet>                        
+                        <p:outputLabel value="#{fp.kupac['pib']}" rendered="#{fp.kupac.getClass().simpleName == 'KupacPravnoLice'}"/>
+                        
+                    </p:column>          
+                    <p:column>
+                        <f:facet name="header" >МБ</f:facet>
+                        <p:outputLabel value="#{fp.kupac['mb']}" rendered="#{fp.kupac.getClass().simpleName == 'KupacPravnoLice'}"/>
+                    </p:column>                    
+                    <p:column>
+                        <f:facet name="header" >ЈМБГ</f:facet>
+                        <p:outputLabel value="#{fp.kupac['jmbg']}" rendered="#{fp.kupac.getClass().simpleName == 'KupacFizickoLice'}"/> 
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >Број уговора</f:facet>
+                            #{fp.brojUgovora}
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >Датум уговора од</f:facet>           
+                        <center>
+                        <p:outputLabel value="#{fp.datumUgovoraOd}" style="text-align: center">
+                            <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                        </p:outputLabel>                        
+                        </center>
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >Датум уговора до</f:facet>
+                        <center>
+                        <p:outputLabel value="#{fp.datumUgovoraDo}" style="text-align: center">
+                            <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                        </p:outputLabel>                                                
+                        </center>
+                    </p:column>                    
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton id="btnOdobren" process="fpDT" update=":frmFinProvera:tcDetailOdobren" oncomplete="PF('tcDialogOdobren').show()" disabled="#{empty MBFinProvera.selectPromenaSnabdevaca}" 
+                                icon="ui ui-icon-pencil" value="Одобри"  />                    
+                            <p:commandButton id="btnPrigovor" process="fpDT" update=":frmFinProvera:tcDetailPrigovor" oncomplete="PF('tcDialogPrigovor').show()" disabled="#{empty MBFinProvera.selectPromenaSnabdevaca}"
+                                icon="ui ui-icon-close" value="Приговор"  /> 
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="fpDT" />       
+                </p:dataTable>   
+                    </center>  
+                    
+                <p:dialog header="Одобравање захтева" widgetVar="tcDialogOdobren" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="tcDetailOdobren" style="text-align:left;">
+                        <h:form id="frmOdobri">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBFinProvera.selectPromenaSnabdevaca}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+
+                            <p:outputLabel value="Датум пријема:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.datumPrijema}" style="text-align: center">
+                                <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                            </p:outputLabel>                                                    
+                                
+                            <p:outputLabel value="Назив:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.kupac.naziv}" />
+ 
+                            <p:outputLabel value="Адреса:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.kupac.adresa}" />
+
+                            <p:outputLabel value="Број уговора:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.brojUgovora}" />                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBFinProvera.selectPromenaSnabdevaca}">
+                                <p:commandButton process="@form" action="#{MBFinProvera.odobrenZahtev}" value="Одобри" oncomplete="PF('tcDialogOdobren').hide()"> 
+                                </p:commandButton>
+                            <p:spacer width="15"/>
+                            <p:commandButton value="Одустани"  onclick="PF('tcDialogOdobren').hide()"/>                            
+                            </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="fpDT" />                                        
+                 </p:dialog>                    
+                    
+                <p:dialog header="Приговор на захтев" widgetVar="tcDialogPrigovor" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="tcDetailPrigovor" style="text-align:left;">
+                        <h:form id="frmPrigovor">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBFinProvera.selectPromenaSnabdevaca}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                                
+                            <p:outputLabel value="Датум пријема:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.datumPrijema}" style="text-align: center">
+                                <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                            </p:outputLabel>  
+                                
+                            <p:outputLabel value="Назив:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.kupac.naziv}" />
+ 
+                            <p:outputLabel value="Адреса:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.kupac.adresa}" />
+
+                            <p:outputLabel value="Број уговора:" />
+                            <p:outputLabel value="#{MBFinProvera.selectPromenaSnabdevaca.brojUgovora}" />                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBFinProvera.selectPromenaSnabdevaca}">
+                                <p:commandButton process="@form" action="#{MBFinProvera.prigovorNaZahtev}" value="Приговор на захтев" oncomplete="PF('tcDialogPrigovor').hide()"> 
+                                </p:commandButton>
+                            <p:spacer width="15"/>
+                            <p:commandButton value="Одустани"  onclick="PF('tcDialogPrigovor').hide()"/> 
+                            </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="fpDT" />                                        
+                 </p:dialog>                    
+                      
+                </h:form>
+                
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

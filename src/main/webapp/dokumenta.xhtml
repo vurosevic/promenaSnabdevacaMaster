@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+                
+            <h:form id="frmDatatableDok">     
+                    <f:facet name="header">
+                        <p:outputLabel value="Документа" />
+                    </f:facet>                
+                <p:dataTable  id="dokDT" 
+                              value="#{MBDokument.lazyModel}" var="dok" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{dok.id}"
+                              selection="#{MBDokument.selectDokument}" lazy="true">                                        
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{dok.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Датум уписа</f:facet>
+                        <p:outputLabel value="#{dok.datumUpisa}" >
+                            <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                        </p:outputLabel>                                                    
+                    </p:column>                           
+                    <p:column>
+                        <f:facet name="header" >Тип документа</f:facet>
+                        #{dok.tipDokumenta.naziv}                         
+                    </p:column>
+                    
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="dokDT" update=":frmDatatableDok:dokDetailNovi" oncomplete="PF('dokDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEditDok" process="dokDT" update=":frmDatatableDok:dokDetailIzmeni" oncomplete="PF('dokDialogIzmeni').show()" disabled="#{empty MBDokument.selectDokument}" 
+                                icon="ui ui-icon-pencil" value="Измени"  /> 
+                            <p:commandButton id="btnDeleteDok" process="dokDT" update=":frmDatatableDok:dokDetailBrisi" oncomplete="PF('dokDialogBrisi').show()" disabled="#{empty MBDokument.selectDokument}"
+                                icon="ui ui-icon-close" value="Бриши"  /> 
+                            <p:spacer/>
+                            <p:commandButton value="Преузми фајл" icon="ui-icon-arrowthick-1-s" 
+                                             onclick="PrimeFaces.monitorDownload(start, stop);"  
+                                             disabled="#{empty MBDokument.selectDokument}">
+                                <p:fileDownload value="#{MBDokument.file}" />
+                            </p:commandButton>                                                    
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="dokDT" />                     
+                    <f:ajax event="rowUnselectCheckbox" render="dokDT" />                                                               
+                </p:dataTable>   
+                
+                <p:dialog header="Унос новог документа" widgetVar="dokDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="dokDetailNovi" style="text-align:left;">
+                        <h:form id="frmNoviDok">
+                        <p:panelGrid  columns="2" rendered="true" columnClasses="label,value">
+ 
+                            <h:outputText value="Назив:" />
+                            <h:inputText value="#{MBDokument.noviDokument.naziv}" />
+                            
+                            <h:outputText value="Тип документа:" />                            
+                            <p:selectOneMenu id="cbTD" style="width:150px" value="#{MBDokument.selectTipDokumentaId}">
+                                <f:selectItem itemLabel="Изаберите тип документа" itemValue="" noSelectionOption="true" />
+                                <f:selectItems value="#{MBTipDokumenta.lista}" var="tipDokumenta" itemLabel="#{tipDokumenta.naziv}" itemValue="#{tipDokumenta.id}"/>
+                            </p:selectOneMenu>                                                                                    
+                            
+                            <h:outputText value="Фајл:" />
+                            <p:fileUpload label="Изаберите фајл" cancelLabel="Одбаци" sizeLimit="5000000" fileUploadListener="#{MBDokument.handleFileUpload}" 
+                                          fileLimit="1" fileLimitMessage="Можете снимити максимлно један фајл"
+                                          invalidSizeMessage="Максимална величина фајла је 5Mb" required="true"
+                                          requiredMessage="Морате изабрати фајл" uploadLabel="Пребаци фајл"                                          
+                                          />
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovidok" process="@form" action="#{MBDokument.dodajNoviDokument()}" value="Сачувај" oncomplete="PF('dokDialogNovi').hide();" > 
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('dokDialogNovi').hide()"/>
+                        </p:panel>              
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="frmDatatableDok" /> 
+                 </p:dialog>                                 
+                
+                <p:dialog header="Ажурирање података о документу" widgetVar="dokDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="dokDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaDok">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBDokument.selectDokument}" columnClasses="label,value" >
+ 
+                            <h:outputText value="Назив:" />
+                            <h:inputText value="#{MBDokument.selectDokument.naziv}" />
+                            
+                            <h:outputText value="Тип документа:" />                            
+                            <p:selectOneMenu id="cbTDE" style="width:150px" value="#{MBDokument.selectTipDokumentaId}">
+                                <f:selectItem itemLabel="#{MBDokument.selectDokument.tipDokumenta.naziv}" itemValue="#{MBDokument.selectDokument.tipDokumenta.id}" noSelectionOption="true" />
+                                <f:selectItems value="#{MBTipDokumenta.lista}" var="tipDokumenta" itemLabel="#{tipDokumenta.naziv}" itemValue="#{tipDokumenta.id}"/>
+                            </p:selectOneMenu>  
+                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBDokument.selectDokument}">
+                                <p:commandButton process="@form" action="#{MBDokument.azurirajDokument()}" value="Сачувај" oncomplete="PF('dokDialogIzmeni').hide()"> 
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('dokDialogIzmeni').hide()"/>  
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="dokDT" />
+                 </p:dialog>      
+                
+                <p:dialog header="Потврда брисања" widgetVar="dokDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="dokDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiDok">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBDokument.selectDokument}" columnClasses="label,value" >        
+
+                            <h:outputText value="Назив:" />
+                            <h:outputText value="#{MBDokument.selectDokument.naziv}" />                          
+                            
+                            <h:outputText value="Тип документа:" /> 
+                            <h:outputText value="#{MBDokument.selectDokument.tipDokumenta.naziv}" />                                                                                    
+
+                            </p:panelGrid>
+                            <p:panel rendered="#{not empty MBDokument.selectDokument}">
+                                <p:commandButton process="@form" action="#{MBDokument.brisiDokument()}" value="Бриши" oncomplete="PF('dokDialogBrisi').hide()">  
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('dokDialogBrisi').hide()"/>  
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="dokDT" />
+                 </p:dialog>                
+                
+                </h:form>                
+                
+                
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

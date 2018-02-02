@@ -1,0 +1,190 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+                
+            <h:form id="frmDatatableMm">     
+                    <f:facet name="header">
+                        <p:outputLabel value="Мерна Места" />
+                    </f:facet>                
+                <p:dataTable  id="mmDT" 
+                              value="#{MBMernoMesto.lazyModel}" var="mm" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{mm.id}"
+                              selection="#{MBMernoMesto.selectMernoMesto}" lazy="true">                                        
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Ед број</f:facet>
+                        #{mm.edBroj}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Адреса мерног места</f:facet>
+                            #{mm.adresaMernogMesta}
+                    </p:column>                           
+                    <p:column>
+                        <f:facet name="header" >Технички центар</f:facet>
+                        #{mm.tehnickiCentar.naziv_tc}                         
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >Планирана енергија</f:facet>
+                            #{mm.planiranaEnergija}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >Одобрена снага</f:facet>
+                            #{mm.odobrenaSnaga}
+                    </p:column> 
+                    <p:column>
+                        <f:facet name="header" >Остварена енергија</f:facet>
+                            #{mm.ostvarenaEnergija}
+                    </p:column>       
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="mmDT" update=":frmDatatableMm:mmDetailNovi" oncomplete="PF('mmDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEditMm" process="mmDT" update=":frmDatatableMm:mmDetailIzmeni" oncomplete="PF('mmDialogIzmeni').show()" disabled="#{empty MBMernoMesto.selectMernoMesto}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDeleteMm" process="mmDT" update=":frmDatatableMm:mmDetailBrisi" oncomplete="PF('mmDialogBrisi').show()" disabled="#{empty MBMernoMesto.selectMernoMesto}"
+                                icon="ui ui-icon-close" value="Бриши"  /> 
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="mmDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="mmDT" />                                                               
+                </p:dataTable>   
+                
+                <p:dialog header="Унос новог мерног места" widgetVar="mmDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="mmDetailNovi" style="text-align:left;">
+                        <p:panelGrid  columns="2" rendered="true" columnClasses="label,value">
+ 
+                            <h:outputText value="Ед број:" />
+                            <h:inputText value="#{MBMernoMesto.novoMernoMesto.edBroj}" />
+
+                            <h:outputText value="Адреса мерног места:" />
+                            <h:inputText value="#{MBMernoMesto.novoMernoMesto.adresaMernogMesta}" />                            
+                            
+                            <h:outputText value="Технички центар:" />                            
+                            <p:selectOneMenu id="cbTc" style="width:150px" value="#{MBMernoMesto.selectTehnickiCentarId}">
+                                <f:selectItem itemLabel="Изаберите технички центар" itemValue="" noSelectionOption="true" />
+                                <f:selectItems value="#{MBTehnickiCentar.lista}" var="tehnickiCentar" itemLabel="#{tehnickiCentar.naziv_tc}" itemValue="#{tehnickiCentar.id}"/>
+                            </p:selectOneMenu>  
+                            
+                            <h:outputText value="Планирана енергија:" />
+                            <h:inputText value="#{MBMernoMesto.novoMernoMesto.planiranaEnergija}" />
+                            
+                            <h:outputText value="Остварена енергија:" />
+                            <h:inputText value="#{MBMernoMesto.novoMernoMesto.ostvarenaEnergija}" />                                                        
+                            
+                            <h:outputText value="Одобрена снага енергија:" />
+                            <h:inputText value="#{MBMernoMesto.novoMernoMesto.odobrenaSnaga}" />                                                                                    
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovimm" process="@form" action="#{MBMernoMesto.dodajNovoMernoMesto()}" value="Сачувај" oncomplete="PF('mmDialogNovi').hide();" >                               
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('mmDialogNovi').hide()"/>                            
+                        </p:panel>                         
+                    </p:outputPanel>
+                    <f:ajax event="close" render="frmDatatableMm" /> 
+                 </p:dialog>                                 
+                
+                <p:dialog header="Ажурирање података о мерном месту" widgetVar="mmDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="mmDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaMm">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBMernoMesto.selectMernoMesto}" columnClasses="label,value" >
+ 
+                            <h:outputText value="Ед број:" />
+                            <h:inputText value="#{MBMernoMesto.selectMernoMesto.edBroj}" />
+
+                            <h:outputText value="Адреса мерног места:" />
+                            <h:inputText value="#{MBMernoMesto.selectMernoMesto.adresaMernogMesta}" />                            
+                            
+                            <h:outputText value="Технички центар:" />                            
+                            <p:selectOneMenu id="cbTcE" style="width:150px" value="#{MBMernoMesto.selectTehnickiCentarId}">
+                                <f:selectItem itemLabel="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.naziv_tc}" itemValue="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.id}" noSelectionOption="false" />
+                                <f:selectItems value="#{MBTehnickiCentar.lista}" var="tehnickiCentar" itemLabel="#{tehnickiCentar.naziv_tc}" itemValue="#{tehnickiCentar.id}"/>
+                            </p:selectOneMenu>  
+                            
+                            <h:outputText value="Планирана енергија:" />
+                            <h:inputText value="#{MBMernoMesto.selectMernoMesto.planiranaEnergija}" />
+                            
+                            <h:outputText value="Остварена енергија:" />
+                            <h:inputText value="#{MBMernoMesto.selectMernoMesto.ostvarenaEnergija}" />                                                        
+                            
+                            <h:outputText value="Одобрена снага енергија:" />
+                            <h:inputText value="#{MBMernoMesto.selectMernoMesto.odobrenaSnaga}" />                                    
+                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBMernoMesto.selectMernoMesto}">
+                                <p:commandButton process="@form" action="#{MBMernoMesto.azurirajMernoMesto()}" value="Сачувај" oncomplete="PF('mmDialogIzmeni').hide()">                               
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('mmDialogIzmeni').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="mmDT" />
+                 </p:dialog>      
+                
+                <p:dialog header="Потврда брисања" widgetVar="mmDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="mmDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiMm">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBMernoMesto.selectMernoMesto}" columnClasses="label,value" >        
+
+                            <h:outputText value="Ед број:" />
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.edBroj}" />
+
+                            <h:outputText value="Адреса мерног места:" />
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.adresaMernogMesta}" />                            
+                            
+                            <h:outputText value="Технички центар:" />                            
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.naziv_tc}" />                                                        
+                            
+                            <h:outputText value="Планирана енергија:" />
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.planiranaEnergija}" />
+                            
+                            <h:outputText value="Остварена енергија:" />
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.ostvarenaEnergija}" />                                                        
+                            
+                            <h:outputText value="Одобрена снага енергија:" />
+                            <h:outputText value="#{MBMernoMesto.selectMernoMesto.odobrenaSnaga}" />   
+
+                            </p:panelGrid>
+                            <p:panel rendered="#{not empty MBMernoMesto.selectMernoMesto}">
+                                <p:commandButton process="@form" action="#{MBMernoMesto.brisiMernoMesto()}" value="Бриши" oncomplete="PF('mmDialogBrisi').hide()">                               
+                            </p:commandButton>
+                            <p:commandButton value="Одустани"  onclick="PF('mmDialogBrisi').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="mmDT" />                                        
+                 </p:dialog>                
+                
+                </h:form>                
+                
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <h:outputStylesheet name="./css/default.css"/>
+        <h:outputStylesheet name="./css/cssLayout.css"/>
+        <title>ЈП ЕПС - Промена снабдевача</title>
+    </h:head>
+
+    <h:body>
+
+        <div id="top">
+            <h:form>
+                
+                <div class="ui-g">
+                    <div class="ui-g-10">
+                            <p:graphicImage width="200px" height="33px" value="#{resource['images:logo-eps-color.png']}"/>
+                    </div>
+                    <div class="ui-g-2">
+                        <p:panelGrid columns="2" style="float: right" styleClass="ui-noborder" class="panelGridNoBorder">
+                            <p>Пријављен: #{MBLogin.username}</p>
+                            <h:commandLink action="#{MBLogin.logout()}" value="Одјава"></h:commandLink>
+                        </p:panelGrid>
+                    </div>                    
+                </div>
+                            <p:menubar>
+                                <p:submenu label="Администратор">
+                                    <p:menuitem value="Корисници" url="korisnici.xhtml" />   
+                                </p:submenu>                                
+                                <p:submenu label="Подаци">
+                                    <p:menuitem value="Технички центри" url="tehnickicentri.xhtml"  />
+                                    <p:menuitem value="Снабдевачи" url="snabdevaci.xhtml"  />
+                                    <p:menuitem value="Купци" url="kupci.xhtml"  />               
+                                    <p:separator/>
+                                    <p:menuitem value="Тип документа" url="tipdokumenta.xhtml"  />
+                                    <p:menuitem value="Групе захтева" url="grupazahteva.xhtml"  />                                                                     
+                                </p:submenu>
+                                <p:submenu label="Финансије">
+                                    <p:menuitem value="Провера захтева" url="finprovera.xhtml" />   
+                                </p:submenu>                                 
+                                <p:submenu label="Евиденција промене снабдевача">
+                                    <p:menuitem value="Евиденција одласка" url="evidencijaodlaska.xhtml"  />
+                                    <p:menuitem value="Евиденција доласка" url="notyet.xhtml"  />
+                                </p:submenu>
+                            </p:menubar>                
+            </h:form>              
+            <ui:insert name="top"></ui:insert>
+        </div>
+        <div>
+            <div id="left">
+                <ui:insert name="left">Left</ui:insert>
+            </div>
+            <div>
+                <div id="right">
+                    <ui:insert name="right"></ui:insert>
+                </div>
+                <div id="content" class="right_content">
+                    <ui:insert name="content">Content</ui:insert>
+                </div>
+            </div>
+        </div>
+        <div id="bottom">
+            <ui:insert name="bottom">                
+            </ui:insert>
+            <div style="text-align: center">
+                <p:outputLabel value="ЈП ЕЛЕКТРОПРИВРЕДА СРБИЈЕ (C) 2018" />
+            </div>
+        </div>
+
+    </h:body>
+
+</html>

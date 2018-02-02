@@ -1,0 +1,404 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">                
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">                                                                               
+            <p:tabView id="tbvPL" >                 
+            <p:tab title="Правна лица">                    
+                <h:form id="frmDatatablekPl">  
+                    <p:growl for="growlKey" autoUpdate="true"/>
+                    <p:dataTable  id="kPlDT" 
+                                  value="#{MBKupac.lazyModelPl}" var="k" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{k.id}"
+                              selection="#{MBKupac.selektovaniKupacPl}" lazy="true">
+                    <f:facet name="header">
+                        <p:outputLabel value="Правна лица" />
+                    </f:facet>                     
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{k.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Адреса</f:facet>
+                            #{k.adresa}
+                    </p:column>                           
+                    <p:column>
+                        <f:facet name="header" >Телефон</f:facet>
+                            #{k.telefon}
+                    </p:column>                    
+                    <p:column>
+                        <f:facet name="header" >Емаил</f:facet>
+                            #{k.email}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >Мб</f:facet>                                                
+                            #{k['mb']}
+                    </p:column>
+                    <p:column>
+                        <f:facet name="header" >Пиб</f:facet>
+                            #{k['pib']}
+                    </p:column>                    
+                    <p:column>
+                        <f:facet name="header" >Контакт особа</f:facet>
+                            #{k['kontaktOsoba']}
+                    </p:column>                     
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="kPlDT" update=":tbvPL:frmDatatablekPl:kPlDetailNovi" oncomplete="PF('kPlDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEdit" process="kPlDT" update=":tbvPL:frmDatatablekPl:kPlDetailIzmeni" oncomplete="PF('kPlDialogIzmeni').show()" disabled="#{empty MBKupac.selektovaniKupacPl}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDelete" process="kPlDT" update=":tbvPL:frmDatatablekPl:kPlDetailBrisi" oncomplete="PF('kPlDialogBrisi').show()" disabled="#{empty MBKupac.selektovaniKupacPl}"
+                                icon="ui ui-icon-close" value="Бриши"  />
+                        </div>
+                    </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="kPlDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="kPlDT" />   
+                    </p:dataTable>                                            
+                    
+                    <p:dialog header="Унос новог правног лица" widgetVar="kPlDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                        <p:messages style="color:red" autoUpdate="true" />  
+                        <p:outputPanel id="kPlDetailNovi" style="text-align:left;">
+                            <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBKupac.noviKupacPl.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBKupac.noviKupacPl.adresa}" >  
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />                            
+                            
+                            <p:outputLabel for="telefon" value="Телефон:" />
+                            <p:inputMask id="telefon" required="true" value="#{MBKupac.noviKupacPl.telefon}" mask="(999) 999-9999">                                
+                            </p:inputMask>
+                            <p:message for="telefon" display="icon" />                                 
+                            
+                            <p:outputLabel for="email" value="Емаил:" />
+                            <p:inputText id="email" required="true" value="#{MBKupac.noviKupacPl.email}" 
+                                         validatorMessage="Емаил: Формат адресе није исправан.">
+                                <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+                            </p:inputText>
+                            <p:message for="email" display="icon" />      
+                            
+                            <p:outputLabel for="mb" value="Мб:" />
+                            <p:inputMask id="mb" required="true" value="#{MBKupac.noviKupacPl['mb']}" mask="99999999">
+                            </p:inputMask>
+                            <p:message for="mb" display="icon" />                               
+                            
+                            <p:outputLabel for="pib" value="Пиб:" />
+                            <p:inputMask id="pib" required="true" value="#{MBKupac.noviKupacPl['pib']}" mask="9999999999">
+                            </p:inputMask>
+                            <p:message for="pib" display="icon" /> 
+                            
+                            <p:outputLabel for="kosoba" value="Контакт особа:" />
+                            <p:inputText id="kosoba" required="true" value="#{MBKupac.noviKupacPl['kontaktOsoba']}" >
+                                <p:ajax update="kosoba" event="keyup" />
+                            </p:inputText>
+                            <p:message for="kosoba" display="icon" />                            
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovi" update="kPlDetailNovi" process="@form" action="#{MBKupac.dodajNovoPravnoLice()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('kPlDialogNovi').hide();" >  
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('kPlDialogNovi').hide()"/>                            
+                        </p:panel>                         
+                    </p:outputPanel>
+                     <f:ajax event="close" render="frmDatatablekPl" /> 
+                 </p:dialog>                 
+                
+                    <p:dialog header="Ажурирање података о правном лицу" widgetVar="kPlDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="kPlDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenakPl">
+                            <p:panelGrid  columns="3" rendered="#{not empty MBKupac.selektovaniKupacPl}" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBKupac.selektovaniKupacPl.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBKupac.selektovaniKupacPl.adresa}" >  
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />                            
+                            
+                            <p:outputLabel for="telefon" value="Телефон:" />
+                            <p:inputMask id="telefon" required="true" value="#{MBKupac.selektovaniKupacPl.telefon}" mask="(999) 999-9999">                                
+                            </p:inputMask>
+                            <p:message for="telefon" display="icon" />                                 
+                            
+                            <p:outputLabel for="email" value="Емаил:" />
+                            <p:inputText id="email" required="true" value="#{MBKupac.selektovaniKupacPl.email}" 
+                                         validatorMessage="Емаил: Формат адресе није исправан.">
+                                <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+                            </p:inputText>
+                            <p:message for="email" display="icon" />  
+                            
+                            <p:outputLabel for="mb" value="Мб:" />
+                            <p:inputMask id="mb" required="true" value="#{MBKupac.selektovaniKupacPl['mb']}" mask="99999999">
+                            </p:inputMask>
+                            <p:message for="mb" display="icon" />                               
+                            
+                            <p:outputLabel for="pib" value="Пиб:" />
+                            <p:inputMask id="pib" required="true" value="#{MBKupac.selektovaniKupacPl['pib']}" mask="9999999999">
+                            </p:inputMask>
+                            <p:message for="pib" display="icon" /> 
+                            
+                            <p:outputLabel for="kosoba" value="Контакт особа:" />
+                            <p:inputText id="kosoba" required="true" value="#{MBKupac.selektovaniKupacPl['kontaktOsoba']}" >
+                                <p:ajax update="kosoba" event="keyup" />
+                            </p:inputText>
+                            <p:message for="kosoba" display="icon" />                              
+                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBKupac.selektovaniKupacPl}">
+                                <p:commandButton process="@form" update="frmIzmenakPl" action="#{MBKupac.azurirajPravnoLice()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('kPlDialogIzmeni').hide()">                               
+                            </p:commandButton>
+                                <p:spacer width="15"/>
+                                <p:commandButton value="Одустани" ajax="false" onclick="PF('kPlDialogIzmeni').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="kPlDT" />
+                 </p:dialog>                
+                    
+                    <p:dialog header="Потврда брисања" widgetVar="kPlDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                                        
+                    <p:outputPanel id="kPlDetailBrisi" style="text-align:left;">                        
+                        <h:form id="frmBrisikPl">                           
+                            <p:panelGrid  columns="2" rendered="#{not empty MBKupac.selektovaniKupacPl}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                            <p:outputLabel value="Назив:" />
+                            <p:outputLabel value="#{MBKupac.selektovaniKupacPl.naziv}" />
+
+                            <p:outputLabel value="Адреса:" />
+                            <p:outputLabel value="#{MBKupac.selektovaniKupacPl.adresa}" />                            
+                            
+                            <p:outputLabel value="Телефон:" />
+                            <p:outputLabel value="#{MBKupac.selektovaniKupacPl.telefon}" />
+                            
+                            <p:outputLabel value="Емаил:" />
+                            <p:outputLabel value="#{MBKupac.selektovaniKupacPl.email}" />                            
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBKupac.selektovaniKupacPl}">
+                            <p:commandButton process="@form" action="#{MBKupac.brisiPravnoLice()}" value="Бриши" oncomplete="PF('kPlDialogBrisi').hide();">
+                            </p:commandButton>
+                                <p:spacer width="15" />
+                            <p:commandButton value="Одустани"  onclick="PF('kPlDialogBrisi').hide()"/> 
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="kPlDT" />                                        
+                 </p:dialog>                                                                    
+                </h:form>
+            </p:tab>
+                        
+            <p:tab title="Физичка лица">
+                        
+                <h:form id="frmDatatablekFl">                                                       
+                    <p:dataTable  id="kFlDT" 
+                             value="#{MBKupac.lazyModelFl}" var="k" paginator="true" rows="10"                                
+                         paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                         rowsPerPageTemplate="5,10,15" rowKey="#{k.id}"
+                         selection="#{MBKupac.selektovaniKupacFl}" lazy="true">
+                    <f:facet name="header">
+                       <p:outputLabel value="Физичка лица" />
+                    </f:facet>                      
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{k.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Адреса</f:facet>
+                            #{k.adresa}
+                    </p:column>                           
+                    <p:column>
+                        <f:facet name="header" >Телефон</f:facet>
+                            #{k.telefon}
+                    </p:column>                    
+                    <p:column>
+                        <f:facet name="header" >Емаил</f:facet>
+                            #{k.email}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >Јмбг</f:facet>                                                
+                            #{k['jmbg']}
+                    </p:column>
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="kFlDT" update=":tbvPL:frmDatatablekFl:kFlDetailNovi" oncomplete="PF('kFlDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEditFl" process="kFlDT" update=":tbvPL:frmDatatablekFl:kFlDetailIzmeni" oncomplete="PF('kFlDialogIzmeni').show()" disabled="#{empty MBKupac.selektovaniKupacFl}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDeleteFl" process="kFlDT" update=":tbvPL:frmDatatablekFl:kFlDetailBrisi" oncomplete="PF('kFlDialogBrisi').show()" disabled="#{empty MBKupac.selektovaniKupacFl}"
+                                icon="ui ui-icon-close" value="Бриши"  />                                                            
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="kFlDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="kFlDT" />   
+                </p:dataTable> 
+
+                <p:dialog header="Унос новог физичког лица" widgetVar="kFlDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:messages style="color:red" autoUpdate="true" />  
+                    <p:outputPanel id="kFlDetailNovi" style="text-align:left;">
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBKupac.noviKupacFl.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBKupac.noviKupacFl.adresa}" >  
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />                            
+                            
+                            <p:outputLabel for="telefon" value="Телефон:" />
+                            <p:inputMask id="telefon" required="true" value="#{MBKupac.noviKupacFl.telefon}" mask="(999) 999-9999">                                
+                            </p:inputMask>
+                            <p:message for="telefon" display="icon" />                                 
+                            
+                            <p:outputLabel for="email" value="Емаил:" />
+                            <p:inputText id="email" required="true" value="#{MBKupac.noviKupacFl.email}" 
+                                         validatorMessage="Емаил: Формат адресе није исправан.">
+                                <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+                            </p:inputText>
+                            <p:message for="email" display="icon" />  
+                            
+                            <p:outputLabel for="jmbg" value="Јмбг:" />
+                            <p:inputMask id="jmbg" required="true" value="#{MBKupac.noviKupacFl['jmbg']}" mask="9999999999999">
+                            </p:inputMask>
+                            <p:message for="jmbg" display="icon" />                              
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovi" update="kFlDetailNovi" process="@form" action="#{MBKupac.dodajNovoFizickoLice()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('kFlDialogNovi').hide();" >                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false"  onclick="PF('kFlDialogNovi').hide()"/>                            
+                        </p:panel>                         
+                    </p:outputPanel>
+                    <f:ajax event="close" render="frmDatatablekFl" /> 
+                 </p:dialog>  
+                    
+                <p:dialog header="Ажурирање података о физичком лицу" widgetVar="kFlDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:messages style="color:red" autoUpdate="true" />                      
+                    <p:outputPanel id="kFlDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenakFl">
+                            <p:panelGrid  columns="3" rendered="#{not empty MBKupac.selektovaniKupacFl}" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBKupac.selektovaniKupacFl.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBKupac.selektovaniKupacFl.adresa}" >  
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />                            
+                            
+                            <p:outputLabel for="telefon" value="Телефон:" />
+                            <p:inputMask id="telefon" required="true" value="#{MBKupac.selektovaniKupacFl.telefon}" mask="(999) 999-9999">                                
+                            </p:inputMask>
+                            <p:message for="telefon" display="icon" />                                 
+                            
+                            <p:outputLabel for="email" value="Емаил:" />
+                            <p:inputText id="email" required="true" value="#{MBKupac.selektovaniKupacFl.email}" 
+                                         validatorMessage="Емаил: Формат адресе није исправан.">
+                                <f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+                            </p:inputText>
+                            <p:message for="email" display="icon" />  
+                            
+                            <p:outputLabel for="jmbg" value="Јмбг:" />
+                            <p:inputMask id="jmbg" required="true" value="#{MBKupac.selektovaniKupacFl['jmbg']}" mask="9999999999999">
+                            </p:inputMask>
+                            <p:message for="jmbg" display="icon" />                              
+                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBKupac.selektovaniKupacFl}">
+                            <p:commandButton process="@form" update="frmIzmenakFl" action="#{MBKupac.azurirajFizickoLice()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('kFlDialogIzmeni').hide()">                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('kFlDialogIzmeni').hide()"/>                            
+                            </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="kFlDT" />
+                 </p:dialog>     
+                    
+                <p:dialog header="Потврда брисања" widgetVar="kFlDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="kFlDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisikFl">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBKupac.selektovaniKupacFl}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                            <h:outputText value="Назив:" />
+                            <h:outputLabel value="#{MBKupac.selektovaniKupacFl.naziv}" />
+
+                            <h:outputText value="Адреса:" />
+                            <h:outputLabel value="#{MBKupac.selektovaniKupacFl.adresa}" />                            
+                            
+                            <h:outputText value="Телефон:" />
+                            <h:outputLabel value="#{MBKupac.selektovaniKupacFl.telefon}" />
+                            
+                            <h:outputText value="Емаил:" />
+                            <h:outputLabel value="#{MBKupac.selektovaniKupacFl.email}" />                            
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBKupac.selektovaniKupacFl}">
+                                <p:commandButton process="@form" action="#{MBKupac.brisiFizickoLice()}" value="Бриши" oncomplete="PF('kFlDialogBrisi').hide()">
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани"  onclick="PF('kFlDialogBrisi').hide()"/> 
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="kFlDT" />                                        
+                 </p:dialog>  
+                    
+                </h:form>                    
+            </p:tab>
+            </p:tabView>                    
+            
+            </ui:define>
+
+            <ui:define name="bottom">                
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

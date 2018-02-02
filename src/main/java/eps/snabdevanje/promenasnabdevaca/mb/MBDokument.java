@@ -155,6 +155,9 @@ public class MBDokument {
         UploadedFile file = event.getFile();
         String root = "C:\\tmp\\";
         String suuid = UUID.randomUUID().toString().replaceAll("-", "");
+        
+        File directory = new File(root);
+        if (! directory.exists()) directory.mkdir();
 
         noviDokument.setDatumUpisa(Calendar.getInstance().getTime());
         noviDokument.setPutanja(root + suuid + "_" + file.getFileName()); 

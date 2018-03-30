@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">                
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+                
+                
+                <h:form id="frmDatatableUser">                    
+                <p:dataTable  id="uDT" 
+                              value="#{MBUser.lazyModel}" var="u" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{u.id}"
+                              selection="#{MBUser.selectUser}" lazy="true">
+                    <f:facet name="header">
+                        <p:outputLabel value="Корисници" />
+                    </f:facet>                     
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Име</f:facet>
+                        #{u.firstName}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Презиме</f:facet>
+                            #{u.lastName}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >Корисничко име</f:facet>
+                            #{u.username}
+                    </p:column>                      
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="uDT" update=":frmDatatableUser:uDetailNovi" oncomplete="PF('uDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEdit" process="uDT" update=":frmDatatableUser:uDetailIzmeni" oncomplete="PF('uDialogIzmeni').show()" disabled="#{empty MBUser.selectUser}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDelete" process="uDT" update=":frmDatatableUser:uDetailBrisi" oncomplete="PF('uDialogBrisi').show()" disabled="#{empty MBUser.selectUser}"
+                                icon="ui ui-icon-close" value="Бриши"  />                                                            
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="uDT" listener="#{MBUser.promenaSelektovanogUsera()}" />         
+                </p:dataTable>   
+                
+                <p:dialog header="Унос новог корисника" widgetVar="uDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:messages style="color:red" autoUpdate="true" />                     
+                    <p:outputPanel id="uDetailNovi" style="text-align:left;">
+                        <h:form id="frmNoviUser">                            
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="ime" value="Име:" />
+                            <p:inputText id="ime" required="true" value="#{MBUser.noviUser.firstName}" />
+                            <p:message for="ime" display="icon" />
+                            
+                            <p:outputLabel for="prezime" value="Презиме:" />
+                            <p:inputText id="prezime" required="true" value="#{MBUser.noviUser.lastName}" />
+                            <p:message for="prezime" display="icon" />
+ 
+                            <p:outputLabel for="username" value="Корисничко име:" />
+                            <p:inputText id="username" required="true" value="#{MBUser.noviUser.username}" />
+                            <p:message for="username" display="icon" />
+                            
+                            <p:outputLabel for="password" value="Лозинка:" />
+                            <p:password id="password"  required="true" value="#{MBUser.noviUser.password}" />                            
+                            <p:message for="password" display="icon"/>                                                        
+                        </p:panelGrid>
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+                            <p:outputLabel for="pickListN" value="Привилегије корисника" /> <p:spacer/> <p:spacer/>
+                            <p:pickList id="pickListN" required="true" value="#{MBUser.rolesNew}" var="rolesNew" itemLabel="#{rolesNew}" itemValue="#{rolesNew}" /><p:spacer/>
+                            <p:message for="pickListN" display="icon" />
+                        </p:panelGrid>
+                        <p:panel>
+                            <p:commandButton id="btnNovi" update="frmNoviUser" process="@form" action="#{MBUser.dodajNovogUsera()}" value="Сачувај" oncomplete="if (args &amp;&amp; !args.validationFailed) PF('uDialogNovi').hide()" >                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('uDialogNovi').hide()"/>                            
+                        </p:panel> 
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="uDT" />
+                 </p:dialog>                 
+                
+                <p:dialog header="Ажурирање корисника" widgetVar="uDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:messages style="color:red" autoUpdate="true" />
+                    <p:outputPanel id="uDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaUser">
+                            <p:panelGrid  columns="3" rendered="#{not empty MBUser.selectUser}" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="ime" value="Име:" />
+                            <p:inputText id="ime" required="true" value="#{MBUser.selectUser.firstName}" />
+                            <p:message for="ime" display="icon" />
+                            
+                            <p:outputLabel for="prezime" value="Презиме:" />
+                            <p:inputText id="prezime" required="true" value="#{MBUser.selectUser.lastName}" />
+                            <p:message for="prezime" display="icon" />
+ 
+                            <p:outputLabel for="username" value="Корисничко име:" />
+                            <p:inputText id="username" required="true" value="#{MBUser.selectUser.username}" />
+                            <p:message for="username" display="icon" />
+
+                            <p:outputLabel for="password" value="Лозинка:" />
+                            <p:password id="password"  value="#{MBUser.newPasword}" />                            
+                            <p:message for="password" display="icon"/>                                                        
+                        </p:panelGrid>
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+                            <p:outputLabel for="pickList" value="Привилегије корисника" /> <p:spacer/> <p:spacer/>
+                            <p:pickList id="pickList" required="true" value="#{MBUser.rolesSelect}" var="rolesSelect" itemLabel="#{rolesSelect}" itemValue="#{rolesSelect}" /><p:spacer/>
+                            <p:message for="pickList" display="icon" />                            
+                        </p:panelGrid>
+                            
+                            
+                            <p:panel rendered="#{not empty MBUser.selectUser}">
+                            <p:commandButton process="@form" update="frmIzmenaUser" action="#{MBUser.azurirajUsera()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('uDialogIzmeni').hide()"> 
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('uDialogIzmeni').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="uDT" />
+                 </p:dialog>                
+
+
+                <p:dialog header="Потврда брисања корисника" widgetVar="uDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="uDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiUser">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBUser.selectUser}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+
+                            <h:outputText value="Име:" />
+                            <h:outputLabel value="#{MBUser.selectUser.firstName}" />
+                            
+                            <h:outputText value="Презиме:" />
+                            <h:outputLabel value="#{MBUser.selectUser.firstName}" />                            
+ 
+                            <h:outputText value="Корисничко име:" />
+                            <h:outputLabel value="#{MBUser.selectUser.username}" />
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBUser.selectUser}">
+                                <p:commandButton process="@form" action="#{MBUser.brisiUsera()}" value="Бриши" oncomplete="PF('uDialogBrisi').hide()">                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани"  onclick="PF('uDialogBrisi').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="uDT" />                                        
+                 </p:dialog>
+                </h:form>                
+                
+                
+                
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

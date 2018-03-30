@@ -1,0 +1,625 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+        <f:metadata>
+            <f:viewAction action="#{MBPromenaSnabdevacaOdlazak.refresh()}"/>
+        </f:metadata>
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+                
+                <div class="ui-g">
+                    <div class="ui-g-3">
+                        <h:form id="frmDatatablePsoGz">
+                            <p:panelGrid columns="2" class="panelGridNoBorder">                                                    
+                            <p:outputLabel value="Група захтева: " />
+                            <p:selectOneMenu id="gzPso" style="width:150px" value="#{MBPromenaSnabdevacaOdlazak.selectGrupaZahtevaId}"> 
+                                <f:selectItems value="#{MBGrupaZahteva.lista}" var="gz" itemLabel="#{gz.mesec.concat(' ').concat(gz.godina)}" itemValue="#{gz.id}"/>                                
+                                <p:ajax event="change" update=":frmDatatablePso:psoDT" listener="#{MBPromenaSnabdevacaOdlazak.init}"/>                                
+                                <p:ajax event="change" update=":frmDatatableMm:mmDT" listener="#{MBMernoMesto.clear}"/> 
+                                <p:ajax event="change" update=":frmDatatableDok:dokDT" listener="#{MBDokument.clear}"/> 
+                            </p:selectOneMenu>                         
+                        </p:panelGrid>
+                        </h:form>
+                    </div>
+                    <div class="ui-g-9"></div>
+                </div>
+                
+                <div class="ui-g">
+                    <div class="ui-g-12">
+                        
+                        <h:form id="frmDatatablePso">       
+                            
+                            <p:dataTable  id="psoDT" 
+                                          value="#{MBPromenaSnabdevacaOdlazak.lazyModel}" var="pso" paginator="true" rows="10"                                
+                                          paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                          rowsPerPageTemplate="5,10,15" rowKey="#{pso.id}" 
+                                          selection="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}" lazy="true">
+
+                                <f:facet name="header">
+                                    <p:outputLabel value="Промена снабдевача - одлазак" />
+                                </f:facet>                                 
+                                
+                                <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                                <p:column sortBy="#{pso['datumPrijema']}" filterBy="#{pso['datumPrijema']}">
+                                    <f:facet name="header" >Датум пријема</f:facet>
+                                    <div style="text-align: center;">
+                                        <p:outputLabel style="text-align: center" value="#{pso['datumPrijema']}" >
+                                            <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                        </p:outputLabel>                 
+                                    </div>
+                                </p:column>    
+                                <p:column sortBy="#{pso.kupac.naziv}" filterBy="#{pso.kupac.naziv}">
+                                    <f:facet name="header" >Купац</f:facet>
+                                    <p:outputLabel style="float: left" value="#{pso.kupac.naziv}" />  
+                                </p:column>  
+                                <p:column sortBy="#{pso.snabdevac.naziv}" filterBy="#{pso.snabdevac.naziv}">
+                                    <f:facet name="header" >Нови снабдевач</f:facet>
+                                    <p:outputLabel style="float: left" value="#{pso.snabdevac.naziv}" />    
+                                </p:column>
+                                <p:column sortBy="#{pso.brojUgovora}" filterBy="#{pso.brojUgovora}" filterMatchMode="contains">
+                                    <f:facet name="header" >Број уговора</f:facet>
+                                    <p:outputLabel style="float: left" value="#{pso.brojUgovora}" />                                            
+                                </p:column>
+                                <p:column sortBy="#{pso.datumUgovoraOd}" filterBy="#{pso.datumUgovoraOd}">
+                                    <f:facet name="header" >Датум уговора од</f:facet>    
+                                    <div style="text-align: center;">
+                                    <p:outputLabel value="#{pso.datumUgovoraOd}" style="text-align: center">
+                                        <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                    </p:outputLabel>                 
+                                    </div> 
+                                </p:column> 
+                                <p:column sortBy="#{pso.datumUgovoraDo}" filterBy="#{pso.datumUgovoraDo}">
+                                    <f:facet name="header" >Датум уговора до</f:facet>     
+                                    <div style="text-align: center;">
+                                    <p:outputLabel value="#{pso.datumUgovoraDo}" style="text-align: center">
+                                        <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                    </p:outputLabel>                 
+                                    </div>
+                                </p:column>                                 
+                                <p:column sortBy="#{pso.neodredjenoVreme}" filterBy="#{pso.neodredjenoVreme}">
+                                    <f:facet name="header" >Неодређено</f:facet>
+                                    <div style="text-align: center;">
+                                    <p:selectBooleanButton value="#{pso.neodredjenoVreme}" onLabel="Да" offLabel="Не" style="text-align: center" disabled="true"/>
+                                    </div>
+                                </p:column>             
+                                <p:column sortBy="#{pso.otkazniRok}" filterBy="#{pso.otkazniRok}">
+                                    <f:facet name="header" >Отказни рок</f:facet>
+                                    <p:outputLabel style="float: right" value="#{pso.otkazniRok}" />                                         
+                                </p:column> 
+                                <p:column sortBy="#{pso['datumOdobrenja']}" filterBy="#{pso['datumOdobrenja']}">
+                                    <f:facet name="header" >Датум одобрења</f:facet>               
+                                    <center>
+                                    <p:outputLabel value="#{pso['datumOdobrenja']}" style="text-align: center">
+                                        <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                    </p:outputLabel>                                                               
+                                    </center>
+                                </p:column>                    
+                                <p:column sortBy="#{pso['datumPrigovora']}" filterBy="#{pso['datumPrigovora']}">
+                                    <f:facet name="header" >Датум приговора</f:facet>   
+                                    <center>
+                                    <p:outputLabel value="#{pso['datumPrigovora']}" style="text-align: center">
+                                        <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                    </p:outputLabel>                                                                  
+                                    </center>
+                                </p:column>                                 
+                                <p:column sortBy="#{pso.status.naziv}" filterBy="#{pso.status.naziv}">
+                                    <f:facet name="header" >Статус</f:facet>
+                                    <p:outputLabel value="#{pso['status'].naziv}" style="float: left"/>
+                                </p:column> 
+                                <f:facet name="footer">
+                                    <div style="text-align:left">                                                    
+                                        <p:commandButton process="psoDT" update=":frmDatatablePso:psoDetailNovi" oncomplete="PF('psoDialogNovi').show()" 
+                                            icon="ui ui-icon-plus" value="Додај"  />
+                                        <p:commandButton id="btnProvera" process="psoDT" update=":frmDatatablePso:psoDetailIzmeniPosalji" oncomplete="PF('psoDialogIzmeniPosalji').show()" disabled="#{(empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) or ((not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) and (MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 1))}" 
+                                            icon="ui ui-icon-pencil" value="Пошаљи на проверу"  />                                                                                 
+                                        <p:commandButton id="btnSaglasnostRep" ajax="false" immediate="true" actionListener="#{MBPromenaSnabdevacaOdlazak.SaglasnostReportPDF}" icon="ui ui-icon-script" value="Сагласност"  
+                                                         disabled="#{(empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) or ((not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) and (MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 3))}"/> 
+                                        <p:commandButton id="btnPrigovorRep" ajax="false" immediate="true" actionListener="#{MBPromenaSnabdevacaOdlazak.PrigovorReportPDF}" icon="ui ui-icon-script" value="Приговор"  
+                                                         disabled="#{(empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) or ((not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) and (MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 4))}"/> 
+                                        <p:commandButton id="btnКомплетирај" process="psoDT" update=":frmDatatablePso:psoDetailIzmeniKompletiraj" oncomplete="PF('psoDialogIzmeniKompletiraj').show()" disabled="#{(empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) or ((not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) and ((MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 3) and (MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 4)))}" 
+                                            icon="ui ui-icon-pencil" value="Комплетирај"  />                                        
+                                        <p:commandButton id="btnStorno" process="psoDT" update=":frmDatatablePso:psoDetailIzmeniStorniraj" oncomplete="PF('psoDialogIzmeniStorniraj').show()" disabled="#{(empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) or ((not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca) and (MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.status.id != 1))}" 
+                                            icon="ui ui-icon-pencil" value="Сторнирај"  />                                         
+                                    </div>
+                             </f:facet>       
+                                <p:ajax event="rowSelectRadio" update="psoDT" />       
+                                <p:ajax event="rowSelectRadio" update=":frmDatatableMm:mmDT" listener="#{MBPromenaSnabdevacaOdlazak.refreshMernaMesta}" /> 
+                                <p:ajax event="rowSelectRadio" update=":frmDatatableDok:dokDT" listener="#{MBPromenaSnabdevacaOdlazak.refreshDokumenta}" />                                                                 
+                            </p:dataTable>   
+                            
+                            <p:dialog header="Евидентирање нове промене снабдевача - одлазак" widgetVar="psoDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                                <p:messages style="color:red" autoUpdate="true" />
+                                <p:outputPanel id="psoDetailNovi" style="text-align:left;">
+                                    <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <p:outputLabel for="datumPrijema" value="Датум пријема:" />
+                                        <p:calendar id="datumPrijema" required="true" value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.datumPrijema}" 
+                                                    pattern="dd.MM.yyyy" />                                        
+                                        <p:message for="datumPrijema" display="icon" />
+                                        
+                                        <p:outputLabel for="kupPso" value="Купац:" />
+                                        <p:selectOneMenu id="kupPso" required="true" style="width:150px" value="#{MBPromenaSnabdevacaOdlazak.selectKupacId}">
+                                            <f:selectItem itemLabel="Изаберите купца" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{MBKupac.listaAll}" var="kupac" itemLabel="#{kupac.naziv}" itemValue="#{kupac.id}"/>
+                                        </p:selectOneMenu>                         
+                                        <p:message for="kupPso" display="icon" />                                        
+
+                                        <p:outputLabel for="snabPso" value="Нови снабдевач:" />
+                                        <p:selectOneMenu id="snabPso" required="true" style="width:150px" value="#{MBPromenaSnabdevacaOdlazak.selectSnabdevacId}">
+                                            <f:selectItem itemLabel="Изаберите снабдевача" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{MBSnabdevac.lista}" var="snab" itemLabel="#{snab.naziv}" itemValue="#{snab.id}"/>
+                                        </p:selectOneMenu>      
+                                        <p:message for="snabPso" display="icon" />
+                                        
+                                        <p:outputLabel for="brojUgovora" value="Број уговора:" />
+                                        <p:inputText id="brojUgovora" required="true" value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.brojUgovora}" />
+                                        <p:message for="brojUgovora" display="icon" />
+
+                                        <p:outputLabel for="datumUgovoraOd" value="Датум уговора од:" />
+                                        <p:calendar id="datumUgovoraOd" required="true" value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.datumUgovoraOd}" 
+                                                    pattern="dd.MM.yyyy" />
+                                        <p:message for="datumUgovoraOd" display="icon" />
+                                        
+                                        <p:outputLabel for="datumUgovoraDo" value="Датум уговора до:" />
+                                        <p:calendar id="datumUgovoraDo" required="#{not MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.neodredjenoVreme}" 
+                                                    value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.datumUgovoraDo}" 
+                                                    pattern="dd.MM.yyyy" />                                        
+                                        <p:message for="datumUgovoraDo" display="icon" />
+                                        
+                                        <p:outputLabel value="Неодређено време:" />
+                                        <p:selectBooleanButton id="value1" value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.neodredjenoVreme}" onLabel="Да" offLabel="Не" style="width:60px" >
+                                            <p:ajax update="psoDetailNovi" event="change" />
+                                        </p:selectBooleanButton>
+                                        <p:spacer />
+                                        
+                                        <p:outputLabel value="Отказни рок:" />
+                                        <p:inputText value="#{MBPromenaSnabdevacaOdlazak.novaPromenaSnabdevaca.otkazniRok}" />                                        
+                                        <p:spacer />
+                                        
+                                    </p:panelGrid>
+                                    <p:panel >
+                                        <p:commandButton id="btnNovi" update="psoDetailNovi" process="@form" action="#{MBPromenaSnabdevacaOdlazak.dodajNovuPromenuSnabdevacaOdlazak()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('psoDialogNovi').hide();" >                               
+                                        </p:commandButton>
+                                        <p:spacer width="15" />
+                                        <p:commandButton value="Одустани" ajax="false"  onclick="PF('psoDialogNovi').hide()"/>                            
+                                    </p:panel>                         
+                                </p:outputPanel>
+                                <f:ajax event="close" render="frmDatatablePso" /> 
+                             </p:dialog>                 
+
+                            <p:dialog header="Слање промене снабдевача на проверу" widgetVar="psoDialogIzmeniPosalji" modal="true"                                                     
+                                      showEffect="fade" hideEffect="fade" resizable="false">                    
+                                <p:outputPanel id="psoDetailIzmeniPosalji" style="text-align:left;">
+                                    <h:form id="frmIzmenaPsoPosalji">
+                                        <p:panelGrid  columns="2" rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <h:outputText value="Датум пријема:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.datumPrijema}" />                                            
+                                            
+                                        <h:outputText value="Купац:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.kupac.naziv}" />
+
+                                        <h:outputText value="Снабдевач:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.snabdevac.naziv}" />
+
+                                    </p:panelGrid>
+                                        <p:panel rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}">
+                                            <p:commandButton process="@form" action="#{MBPromenaSnabdevacaOdlazak.posaljiNaProveruPromenuSnabdevacaOdlazak()}" value="Сачувај" oncomplete="PF('psoDialogIzmeniPosalji').hide()"> 
+                                        </p:commandButton>
+                                        <p:commandButton value="Одустани"  onclick="PF('psoDialogIzmeniPosalji').hide()"/>
+                                    </p:panel>                                                       
+                                    </h:form>
+                                </p:outputPanel>
+                                <f:ajax event="close" render="psoDT" />
+                             </p:dialog>                
+
+                            <p:dialog header="Комплетирање промене снабдевача" widgetVar="psoDialogIzmeniKompletiraj" modal="true"                                                     
+                                      showEffect="fade" hideEffect="fade" resizable="false">                    
+                                <p:outputPanel id="psoDetailIzmeniKompletiraj" style="text-align:left;">
+                                    <h:form id="frmIzmenaPsoKompletiraj">
+                                        <p:panelGrid  columns="2" rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <h:outputText value="Датум пријема:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.datumPrijema}" />                                            
+                                            
+                                        <h:outputText value="Купац:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.kupac.naziv}" />
+
+                                        <h:outputText value="Снабдевач:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.snabdevac.naziv}" />
+
+                                    </p:panelGrid>
+                                        <p:panel rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}">
+                                            <p:commandButton process="@form" action="#{MBPromenaSnabdevacaOdlazak.kompletirajPromenuSnabdevacaOdlazak()}" value="Сачувај" oncomplete="PF('psoDialogIzmeniKompletiraj').hide()"> 
+                                        </p:commandButton>
+                                        <p:commandButton value="Одустани"  onclick="PF('psoDialogIzmeniKompletiraj').hide()"/>
+                                    </p:panel>                                                       
+                                    </h:form>
+                                </p:outputPanel>
+                                <f:ajax event="close" render="psoDT" />
+                             </p:dialog>                
+
+                            <p:dialog header="Сторнирање промене снабдевача" widgetVar="psoDialogIzmeniStorniraj" modal="true"  
+                                      showEffect="fade" hideEffect="fade" resizable="false">                    
+                                <p:outputPanel id="psoDetailIzmeniStorniraj" style="text-align:left;">
+                                    <h:form id="frmIzmenaPsoStorniraj">
+                                        <p:panelGrid  columns="2" rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <h:outputText value="Датум пријема:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.datumPrijema}" />                                            
+                                            
+                                        <h:outputText value="Купац:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.kupac.naziv}" />
+
+                                        <h:outputText value="Снабдевач:" />
+                                        <h:outputText value="#{MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca.snabdevac.naziv}" />
+
+                                    </p:panelGrid>
+                                        <p:panel rendered="#{not empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}">
+                                            <p:commandButton process="@form" action="#{MBPromenaSnabdevacaOdlazak.stornirajPromenuSnabdevacaOdlazak()}" value="Сачувај" oncomplete="PF('psoDialogIzmeniStorniraj').hide()"> 
+                                        </p:commandButton>
+                                        <p:commandButton value="Одустани"  onclick="PF('psoDialogIzmeniStorniraj').hide()"/>
+                                    </p:panel>                                                       
+                                    </h:form>
+                                </p:outputPanel>
+                                <f:ajax event="close" render="psoDT" />
+                             </p:dialog>                
+                            
+                            
+                        </h:form>                        
+                        
+                        
+                        
+                    </div>
+                </div>
+                
+                <div class="ui-g">
+                    <div class="ui-g-7">
+                                                
+                        <h:form id="frmDatatableMm">                    
+                            <p:dataTable  id="mmDT" 
+                                          value="#{MBMernoMesto.lazyModel}" var="mm" paginator="true" rows="10"  emptyMessage="Нема података"                              
+                                          paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                          rowsPerPageTemplate="5,10,15" rowKey="#{mm.id}"
+                                          selection="#{MBMernoMesto.selectMernoMesto}" lazy="true">                                        
+                                <f:facet name="header">
+                                    <p:outputLabel value="Мерна Места" />
+                                </f:facet>                                 
+                                <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                                <p:column>
+                                    <f:facet name="header" >Ед број</f:facet>
+                                    #{mm.edBroj}
+                                </p:column>    
+                                <p:column>
+                                    <f:facet name="header" >Адреса мерног места</f:facet>
+                                        #{mm.adresaMernogMesta}
+                                </p:column>                           
+                                <p:column>
+                                    <f:facet name="header" >Технички центар</f:facet>
+                                    #{mm.tehnickiCentar.naziv_tc}                         
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header" >Планирана енергија</f:facet>
+                                    <p:outputLabel value="#{mm.planiranaEnergija}" style="float: right" />
+                                </p:column>  
+                                <p:column>
+                                    <f:facet name="header" >Одобрена снага</f:facet>
+                                    <p:outputLabel value="#{mm.odobrenaSnaga}" style="float: right" />  
+                                </p:column> 
+                                <p:column>
+                                    <f:facet name="header" >Остварена енергија</f:facet>
+                                    <p:outputLabel value="#{mm.ostvarenaEnergija}" style="float: right" />                                          
+                                </p:column>       
+                                <f:facet name="footer">
+                                    <div style="text-align:left">                                                    
+                                        <p:commandButton process="mmDT" update=":frmDatatableMm:mmDetailNovi" oncomplete="PF('mmDialogNovi').show()" 
+                                            icon="ui ui-icon-plus" value="Додај"  disabled="#{empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}"/>
+                                        <p:commandButton id="btnEditMm" process="mmDT" update=":frmDatatableMm:mmDetailIzmeni" oncomplete="PF('mmDialogIzmeni').show()" disabled="#{empty MBMernoMesto.selectMernoMesto}" 
+                                            icon="ui ui-icon-pencil" value="Измени"  />                    
+                                        <p:commandButton id="btnDeleteMm" process="mmDT" update=":frmDatatableMm:mmDetailBrisi" oncomplete="PF('mmDialogBrisi').show()" disabled="#{empty MBMernoMesto.selectMernoMesto}"
+                                            icon="ui ui-icon-close" value="Бриши"  /> 
+                                    </div>
+                             </f:facet>       
+                                <f:ajax event="rowSelectRadio" render="mmDT" />       
+                                <f:ajax event="rowUnselectCheckbox" render="mmDT" />                                                               
+                            </p:dataTable>   
+
+                            <p:dialog header="Унос новог мерног места" widgetVar="mmDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                                <p:messages style="color:red" autoUpdate="true" />
+                                <p:outputPanel id="mmDetailNovi" style="text-align:left;">
+                                    <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <p:outputLabel for="edbroj" value="Ед број:" />
+                                        <p:inputText id="edbroj" required="true" value="#{MBMernoMesto.novoMernoMesto.edBroj}" />
+                                        <p:message for="edbroj" display="icon" />
+
+                                        <p:outputLabel for="adresa" value="Адреса мерног места:" />
+                                        <p:inputText id="adresa" required="true" value="#{MBMernoMesto.novoMernoMesto.adresaMernogMesta}" /> 
+                                        <p:message for="adresa" display="icon" />
+
+                                        <p:outputLabel for="cbTc" value="Технички центар:" />                            
+                                        <p:selectOneMenu id="cbTc" required="true" style="width:150px" value="#{MBMernoMesto.selectTehnickiCentarId}">
+                                            <f:selectItem itemLabel="Изаберите технички центар" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{MBTehnickiCentar.lista}" var="tehnickiCentar" itemLabel="#{tehnickiCentar.naziv_tc}" itemValue="#{tehnickiCentar.id}"/>
+                                        </p:selectOneMenu>
+                                        <p:message for="cbTc" display="icon" />
+
+                                        <p:outputLabel for="planirana" value="Планирана енергија:" />
+                                        <p:inputNumber id="planirana" required="true" value="#{MBMernoMesto.novoMernoMesto.planiranaEnergija}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/>
+                                        <p:message for="planirana" display="icon" />                                        
+
+                                        <p:outputLabel for="ostvarena" value="Остварена енергија:" />
+                                        <p:inputNumber id="ostvarena" required="true" value="#{MBMernoMesto.novoMernoMesto.ostvarenaEnergija}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/>
+                                        <p:message for="ostvarena" display="icon" />
+                                        
+                                        <p:outputLabel for="odobrena" value="Одобрена снага:" />
+                                        <p:inputNumber id="odobrena" required="true" value="#{MBMernoMesto.novoMernoMesto.odobrenaSnaga}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/> 
+                                        <p:message for="odobrena" display="icon" />
+
+                                    </p:panelGrid>
+                                    <p:panel id="mmDTBtns">
+                                        <p:commandButton id="btnNovimm" update="mmDetailNovi" process="@form" action="#{MBPromenaSnabdevacaOdlazak.dodajNovoMernoMesto()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('mmDialogNovi').hide();" > 
+                                        </p:commandButton>
+                                        <p:spacer width="15" />
+                                        <p:commandButton value="Одустани" ajax="false" onclick="PF('mmDialogNovi').hide()"/>                            
+                                    </p:panel>                         
+                                </p:outputPanel>
+                                <f:ajax event="close" render="frmDatatableMm" /> 
+                             </p:dialog>                                 
+
+                            <p:dialog header="Ажурирање података о мерном месту" widgetVar="mmDialogIzmeni" modal="true"                                                     
+                                      showEffect="fade" hideEffect="fade" resizable="false"> 
+                                <p:messages style="color:red" autoUpdate="true" />
+                                <p:outputPanel id="mmDetailIzmeni" style="text-align:left;">
+                                    <h:form id="frmIzmenaMm">
+                                        <p:panelGrid  columns="3" rendered="#{not empty MBMernoMesto.selectMernoMesto}" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                        <p:outputLabel for="edbroj" value="Ед број:" />
+                                        <p:inputText id="edbroj" required="true" value="#{MBMernoMesto.selectMernoMesto.edBroj}" />
+                                        <p:message for="edbroj" display="icon" />
+
+                                        <p:outputLabel for="adresa" value="Адреса мерног места:" />
+                                        <p:inputText id="adresa" required="true" value="#{MBMernoMesto.selectMernoMesto.adresaMernogMesta}" /> 
+                                        <p:message for="adresa" display="icon" />                           
+
+                                        <p:outputLabel for="cbTce" value="Технички центар:" />                            
+                                        <p:selectOneMenu id="cbTce" required="true" style="width:150px" value="#{MBMernoMesto.selectTehnickiCentarId}" >
+                                            <f:selectItem itemLabel="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.naziv_tc}" itemValue="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.id}" noSelectionOption="false" />
+                                            <f:selectItems value="#{MBTehnickiCentar.lista}" var="tehnickiCentar" itemLabel="#{tehnickiCentar.naziv_tc}" itemValue="#{tehnickiCentar.id}"/>
+                                        </p:selectOneMenu>  
+                                        <p:message for="cbTce" display="icon" /> 
+
+                                        <p:outputLabel for="planirana" value="Планирана енергија:" />
+                                        <p:inputNumber id="planirana" required="true" value="#{MBMernoMesto.selectMernoMesto.planiranaEnergija}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/>
+                                        <p:message for="planirana" display="icon" />                                        
+
+                                        <p:outputLabel for="ostvarena" value="Остварена енергија:" />
+                                        <p:inputNumber id="ostvarena" required="true" value="#{MBMernoMesto.selectMernoMesto.ostvarenaEnergija}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/>
+                                        <p:message for="ostvarena" display="icon" />
+                                        
+                                        <p:outputLabel for="odobrena" value="Одобрена снага:" />
+                                        <p:inputNumber id="odobrena" required="true" value="#{MBMernoMesto.selectMernoMesto.odobrenaSnaga}" decimalPlaces="2" decimalSeparator="." thousandSeparator=","/> 
+                                        <p:message for="odobrena" display="icon" />                                  
+
+                                    </p:panelGrid>
+                                        <p:panel rendered="#{not empty MBMernoMesto.selectMernoMesto}">
+                                        <p:commandButton process="@form" update="frmIzmenaMm" action="#{MBPromenaSnabdevacaOdlazak.azurirajMernoMesto()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('mmDialogIzmeni').hide()">                               
+                                        </p:commandButton>
+                                        <p:spacer width="15" />
+                                        <p:commandButton value="Одустани" ajax="false" onclick="PF('mmDialogIzmeni').hide()"/>                            
+                                    </p:panel>                                                       
+                                    </h:form>
+                                </p:outputPanel>
+                                <f:ajax event="close" render="mmDT" />
+                             </p:dialog>      
+
+                            <p:dialog header="Потврда брисања" widgetVar="mmDialogBrisi" modal="true"                                                     
+                                      showEffect="fade" hideEffect="fade" resizable="false">                    
+                                <p:outputPanel id="mmDetailBrisi" style="text-align:left;">
+                                    <h:form id="frmBrisiMm">
+                                        <p:panelGrid  columns="2" rendered="#{not empty MBMernoMesto.selectMernoMesto}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+
+                                        <h:outputText value="Ед број:" />
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.edBroj}" />
+
+                                        <h:outputText value="Адреса мерног места:" />
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.adresaMernogMesta}" />                            
+
+                                        <h:outputText value="Технички центар:" />                            
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.tehnickiCentar.naziv_tc}" />                                                        
+
+                                        <h:outputText value="Планирана енергија:" />
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.planiranaEnergija}" />
+
+                                        <h:outputText value="Остварена енергија:" />
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.ostvarenaEnergija}" />                                                        
+
+                                        <h:outputText value="Одобрена снага:" />
+                                        <h:outputText value="#{MBMernoMesto.selectMernoMesto.odobrenaSnaga}" />   
+
+                                        </p:panelGrid>
+                                        <p:panel rendered="#{not empty MBMernoMesto.selectMernoMesto}">
+                                        <p:commandButton process="@form" action="#{MBPromenaSnabdevacaOdlazak.brisiMernoMesto()}" value="Бриши" oncomplete="PF('mmDialogBrisi').hide()">                               
+                                        </p:commandButton>
+                                        <p:spacer width="15" />
+                                        <p:commandButton value="Одустани" ajax="false" onclick="PF('mmDialogBrisi').hide()"/>                            
+                                    </p:panel>                                                       
+                                    </h:form>
+                                </p:outputPanel>
+                                <f:ajax event="close" render="mmDT" />                                        
+                             </p:dialog>                
+                            </h:form>                     
+                    </div>
+                    
+                    <div class="ui-g-5">
+                        
+                        <h:form id="frmDatatableDok">                   
+                        <p:dataTable  id="dokDT" 
+                                      value="#{MBDokument.lazyModel}" var="dok" paginator="true" rows="10" emptyMessage="Нема података" 
+                                      paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                      rowsPerPageTemplate="5,10,15" rowKey="#{dok.id}"
+                                      selection="#{MBDokument.selectDokument}" lazy="true">   
+                            <f:facet name="header">
+                                <p:outputLabel value="Документа" />
+                            </f:facet>                             
+                            <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                            <p:column>
+                                <f:facet name="header" >Назив</f:facet>
+                                #{dok.naziv}
+                            </p:column>    
+                            <p:column>
+                                <f:facet name="header" >Датум уписа</f:facet>
+                                <div style="text-align: center" >
+                                <p:outputLabel value="#{dok.datumUpisa}" >
+                                    <f:convertDateTime pattern="dd.MM.yyyy" timeZone="Europe/Belgrade"/>
+                                </p:outputLabel>                 
+                                </div>
+                            </p:column>                           
+                            <p:column>
+                                <f:facet name="header" >Тип документа</f:facet>
+                                #{dok.tipDokumenta.naziv}                         
+                            </p:column>
+                            
+                            <f:facet name="footer">                                
+                                <h:form id="forma" >                                     
+                                <div style="text-align:left">                                                                        
+                                    <p:commandButton process=":frmDatatableDok:dokDT" update=":frmDatatableDok:dokDetailNovi" oncomplete="PF('dokDialogNovi').show()" 
+                                                     icon="ui ui-icon-plus" value="Додај"  disabled="#{empty MBPromenaSnabdevacaOdlazak.selectPromenaSnabdevaca}" />
+                                    <p:commandButton id="btnEditDok" process=":frmDatatableDok:dokDT" update=":frmDatatableDok:dokDetailIzmeni" oncomplete="PF('dokDialogIzmeni').show()" disabled="#{empty MBDokument.selectDokument}" 
+                                        icon="ui ui-icon-pencil" value="Измени"  /> 
+                                    <p:commandButton id="btnDeleteDok" process=":frmDatatableDok:dokDT" update=":frmDatatableDok:dokDetailBrisi" oncomplete="PF('dokDialogBrisi').show()" disabled="#{empty MBDokument.selectDokument}"
+                                        icon="ui ui-icon-close" value="Бриши"  />                                       
+                                    <p:commandButton id="btnFile" value="Преузми фајл" icon="ui-icon-arrowthick-1-s" ajax="false" 
+                                                     disabled="#{empty MBDokument.selectDokument}" >
+                                        <p:fileDownload value="#{MBDokument.file}" />
+                                    </p:commandButton>                                                                         
+                                </div>                                
+                                </h:form>                                                                    
+                            </f:facet>                             
+                            <f:ajax event="rowSelectRadio" render=":frmDatatableDok:dokDT" />                              
+                        </p:dataTable>   
+
+                        <p:dialog header="Унос новог документа" widgetVar="dokDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                            <p:messages style="color:red" autoUpdate="true" />
+                            <p:outputPanel id="dokDetailNovi" style="text-align:left;" >
+                                <h:form id="frmNoviDok">
+                                    <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                    <p:outputLabel for="naziv" value="Назив:" />
+                                    <p:inputText id="naziv" required="true" value="#{MBDokument.noviDokument.naziv}" />
+                                    <p:message for="naziv" display="icon" />
+
+                                    <p:outputLabel for="cbTD" value="Тип документа:" />                            
+                                    <p:selectOneMenu id="cbTD" required="true" style="width:150px" value="#{MBDokument.selectTipDokumentaId}">
+                                        <f:selectItem itemLabel="Изаберите тип документа" itemValue="" noSelectionOption="true" />
+                                        <f:selectItems value="#{MBTipDokumenta.lista}" var="tipDokumenta" itemLabel="#{tipDokumenta.naziv}" itemValue="#{tipDokumenta.id}"/>
+                                    </p:selectOneMenu>                       
+                                    <p:message for="cbTD" display="icon" />
+
+                                    <p:outputLabel for="file" value="Фајл:" />
+                                    <p:fileUpload id="file" label="Изаберите фајл" cancelLabel="Одбаци" sizeLimit="5000000" fileUploadListener="#{MBDokument.handleFileUpload}" 
+                                                  fileLimit="1" fileLimitMessage="Можете снимити максимално један фајл" mode="advanced"
+                                                  invalidSizeMessage="Максимална величина фајла је 5Mb" required="true" update="msg" invalidFileMessage="Неисправан фајл формат. Дозвољен фајл формат је ПДФ" 
+                                                  requiredMessage="Морате изабрати фајл" uploadLabel="Пребаци фајл" allowTypes="/(\.|\/)(pdf|pdf)$/"
+                                                  />
+                                    <p:message id="msg" for="file" display="icon" />
+                                </p:panelGrid>
+                                <p:panel >
+                                    <p:commandButton id="btnNovidok" update="frmNoviDok" process="@form" action="#{MBPromenaSnabdevacaOdlazak.dodajNoviDokument}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('dokDialogNovi').hide();" > 
+                                    </p:commandButton>
+                                    <p:spacer width="15" />
+                                    <p:commandButton value="Одустани" ajax="false"  onclick="PF('dokDialogNovi').hide()"/>
+                                </p:panel>              
+                                </h:form>
+                            </p:outputPanel>
+                            <f:ajax event="close" render="frmDatatableDok" /> 
+                         </p:dialog>                                 
+
+                        <p:dialog header="Ажурирање података о документу" widgetVar="dokDialogIzmeni" modal="true"                                                     
+                                  showEffect="fade" hideEffect="fade" resizable="false">  
+                            <p:messages style="color:red" autoUpdate="true" />
+                            <p:outputPanel id="dokDetailIzmeni" style="text-align:left;">
+                                <h:form id="frmIzmenaDok">
+                                    <p:panelGrid  columns="3" rendered="#{not empty MBDokument.selectDokument}" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                                    <p:outputLabel for="naziv" value="Назив:" />
+                                    <p:inputText id="naziv" required="true" value="#{MBDokument.selectDokument.naziv}" />
+                                    <p:message for="naziv" display="icon" />
+
+                                    <p:outputLabel for="cbTDE" value="Тип документа:" />                            
+                                    <p:selectOneMenu id="cbTDE" required="true" style="width:150px" value="#{MBDokument.selectTipDokumentaId}">
+                                        <f:selectItem itemLabel="#{MBDokument.selectDokument.tipDokumenta.naziv}" itemValue="#{MBDokument.selectDokument.tipDokumenta.id}" noSelectionOption="true" />
+                                        <f:selectItems value="#{MBTipDokumenta.lista}" var="tipDokumenta" itemLabel="#{tipDokumenta.naziv}" itemValue="#{tipDokumenta.id}"/>
+                                    </p:selectOneMenu>  
+                                    <p:message for="cbTDE" display="icon" />
+
+                                </p:panelGrid>
+                                    <p:panel rendered="#{not empty MBDokument.selectDokument}">
+                                    <p:commandButton process="@form" update="frmIzmenaDok" action="#{MBPromenaSnabdevacaOdlazak.azurirajDokument()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('dokDialogIzmeni').hide()"> 
+                                    </p:commandButton>
+                                    <p:spacer width="15" />
+                                    <p:commandButton value="Одустани" ajax="false" action="#{MBPromenaSnabdevacaOdlazak.refresh}"  onclick="PF('dokDialogIzmeni').hide()"/>  
+                                </p:panel>                                                       
+                                </h:form>                                                                         
+                            </p:outputPanel>
+                            <f:ajax event="close" render="dokDT" />
+                         </p:dialog>      
+
+                        <p:dialog header="Потврда брисања" widgetVar="dokDialogBrisi" modal="true"                                                     
+                                  showEffect="fade" hideEffect="fade" resizable="false">                    
+                            <p:outputPanel id="dokDetailBrisi" style="text-align:left;">
+                                <h:form id="frmBrisiDok">
+                                    <p:panelGrid  columns="2" rendered="#{not empty MBDokument.selectDokument}" columnClasses="label,value" class="panelGridNoBorderDialog"> 
+
+                                    <h:outputText value="Назив:" />
+                                    <h:outputText value="#{MBDokument.selectDokument.naziv}" />                          
+
+                                    <h:outputText value="Тип документа:" /> 
+                                    <h:outputText value="#{MBDokument.selectDokument.tipDokumenta.naziv}" />                                                                                    
+
+                                    </p:panelGrid>
+                                    <p:panel rendered="#{not empty MBDokument.selectDokument}">
+                                        <p:commandButton process="@form" action="#{MBDokument.brisiDokument()}" value="Бриши" oncomplete="PF('dokDialogBrisi').hide()">  
+                                    </p:commandButton>
+                                    <p:spacer width="15" />
+                                    <p:commandButton value="Одустани"  onclick="PF('dokDialogBrisi').hide()"/>  
+                                </p:panel>                                                       
+                                </h:form>
+                            </p:outputPanel>
+                            <f:ajax event="close" render="dokDT" />
+                         </p:dialog>                
+
+                    </h:form>                         
+                        
+                    </div>
+                </div>                
+                
+                
+                
+                
+                
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

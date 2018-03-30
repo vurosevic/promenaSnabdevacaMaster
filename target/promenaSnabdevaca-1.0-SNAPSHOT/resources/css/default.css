@@ -1,0 +1,78 @@
+body {
+    background-color: #CDE1F0;
+    font-size: 11px;
+    font-family: Verdana, "Verdana CE",  Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
+    color: #000000;  
+    margin: 10px;
+}
+
+h1 {
+    font-family: Arial, "Arial CE", "Lucida Grande CE", lucida, "Helvetica CE", sans-serif;
+    border-bottom: 1px solid #AFAFAF; 
+    font-size:  16px;
+    font-weight: bold;
+    margin: 0px;
+    padding: 0px;
+    color: #D20005;
+}
+
+a:link, a:visited {
+  color: #045491;
+  font-weight : bold;
+  text-decoration: none;
+}
+
+a:link:hover, a:visited:hover  {
+  color: #045491;
+  font-weight : bold;
+  text-decoration : underline;
+}
+
+.panelGridNoBorder td, .panelGridNoBorder tr  {
+    background-color: #CDE1F0 !important;
+    border-style: hidden !important;
+    border-width: 0;
+    border: none !important;
+}
+
+.panelGridNoBorderDialog td, .panelGridNoBorderDialog tr  {
+    border-style: hidden !important;
+    border-width: 0;
+    border: none !important;
+}
+
+.loginForm {
+    background-color: #0099ff !important;
+    border-style: none !important;
+    border-width: 0;
+    border: none !important;
+}
+
+.float_center {
+  float: right;
+
+  position: relative;
+  left: -50%; /* or right 50% */
+  text-align: left;
+}
+.float_center > .child {
+  position: relative;
+  left: 50%;
+}
+
+.centeredBox {
+    width: 400px;
+    height: 300px;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    margin-top: -150px;
+    margin-left: -200px;
+}
+
+.singleLine
+{   
+    text-wrap:none;
+    overflow:hidden;
+    text-overflow:ellipsis;    
+}

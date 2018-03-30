@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <h:outputStylesheet name="./css/default.css"/>
+        <h:outputStylesheet name="./css/cssLayout.css"/>        
+        <title>ЈП ЕПС - Промена снабдевача</title>
+    </h:head>
+    <h:body>
+        
+	<h:form id="loginForm">
+		<div class="centeredBox">
+                    	<p:messages id="messages" showDetail="false" autoUpdate="true"
+			closable="false" />
+                        <p:panelGrid columns="2" class="loginForm" styleClass="ui-noborder">
+				<f:facet name="header">
+					ПРИЈАВА КОРИСНИКА
+				</f:facet>                            
+				<p:outputLabel for="j_username" value="Корисничко име:" />
+				<p:inputText id="j_username" required="true"
+                                             value="#{MBLogin.username}">
+				</p:inputText>
+
+				<p:outputLabel for="j_password" value="Лозинка:" />
+				<p:password id="j_password" required="true"
+                                            value="#{MBLogin.password}">
+				</p:password>
+				<f:facet name="footer">                                    
+					<p:commandButton type="submit" id="login" ajax="false"
+                                                         actionListener="#{MBLogin.login()}" value="Пријава" />                                    
+				</f:facet>                                 
+			</p:panelGrid>
+		</div>
+        </h:form>      
+        
+    </h:body>
+</html>
+

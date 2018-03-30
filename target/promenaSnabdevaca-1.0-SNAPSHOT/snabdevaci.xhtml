@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+            <h:form id="frmDatatableSn">                    
+                <p:dataTable  id="snDT" 
+                              value="#{MBSnabdevac.lazyModel}" var="sn" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{sn.id}"
+                              selection="#{MBSnabdevac.selectSnabdevac}" lazy="true">
+                    
+                    <f:facet name="header">
+                        <p:outputLabel value="Снабдевачи" />
+                    </f:facet>                     
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{sn.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >МБ</f:facet>
+                            #{sn.mb}
+                    </p:column>                           
+                    <p:column>
+                        <f:facet name="header" >Адреса</f:facet>
+                            #{sn.adresa}
+                    </p:column>  
+                    <p:column>
+                        <f:facet name="header" >Место</f:facet>
+                            #{sn.mesto}
+                    </p:column>                      
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="snDT" update=":frmDatatableSn:snDetailNovi" oncomplete="PF('snDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEdit" process="snDT" update=":frmDatatableSn:snDetailIzmeni" oncomplete="PF('snDialogIzmeni').show()" disabled="#{empty MBSnabdevac.selectSnabdevac}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDelete" process="snDT" update=":frmDatatableSn:snDetailBrisi" oncomplete="PF('snDialogBrisi').show()" disabled="#{empty MBSnabdevac.selectSnabdevac}"
+                                icon="ui ui-icon-close" value="Бриши"  />                                                            
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="snDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="snDT" />   
+                </p:dataTable>   
+                
+                <p:dialog header="Унос новог снабдевача" widgetVar="snDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:outputPanel id="snDetailNovi" style="text-align:left;">
+                        <h:form id="frmNoviSn">
+                        <p:messages style="color:red" autoUpdate="true" />     
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog"> 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBSnabdevac.noviSnabdevac.naziv}" size="60">
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>                            
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="mb" value="МБ:" />
+                            <p:inputNumber id="mb" required="true" value="#{MBSnabdevac.noviSnabdevac.mb}" thousandSeparator="" decimalSeparator="" decimalPlaces="0" size="10"> 
+                                <p:ajax update="mb" event="keyup" />
+                            </p:inputNumber>                                                      
+                            <p:message for="mb" display="icon" />
+                            
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBSnabdevac.noviSnabdevac.adresa}" size="60">
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>                                                            
+                            <p:message for="adresa" display="icon" />
+                            
+                            <p:outputLabel for="mesto" value="Место:" />
+                            <p:inputText id="mesto" required="true" value="#{MBSnabdevac.noviSnabdevac.mesto}" size="50">    
+                                <p:ajax update="mesto" event="keyup" />
+                            </p:inputText>                                                            
+                            <p:message for="mesto" display="icon" />
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovi" update="frmNoviSn" process="@form" action="#{MBSnabdevac.dodajNovogSnabdevaca()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('snDialogNovi').hide();" >                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false"  onclick="PF('snDialogNovi').hide()"/>                            
+                        </p:panel>   
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="snDT" />
+                 </p:dialog>                 
+                
+                <p:dialog header="Ажурирање података о снабдевачу" widgetVar="snDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="snDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaSn">
+                            <p:messages style="color:red" autoUpdate="true" />     
+                            <p:panelGrid  columns="3" rendered="#{not empty MBSnabdevac.selectSnabdevac}" columnClasses="label,value" class="panelGridNoBorderDialog">
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBSnabdevac.selectSnabdevac.naziv}" size="60">
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>                                                            
+                            <p:message for="naziv" display="icon" />
+
+                            <p:outputLabel for="mb" value="МБ:" />
+                            <p:inputNumber id="mb" required="true" value="#{MBSnabdevac.selectSnabdevac.mb}" decimalPlaces="0" decimalSeparator="" thousandSeparator="" size="10"> 
+                                <p:ajax update="mb" event="keyup" />
+                            </p:inputNumber>                                                         
+                            <p:message for="mb" display="icon" />                                
+                            
+                            <p:outputLabel for="adresa" value="Адреса:" />
+                            <p:inputText id="adresa" required="true" value="#{MBSnabdevac.selectSnabdevac.adresa}" size="60">
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />                                                                
+
+                            <p:outputLabel for="mesto" value="Место:" />
+                            <p:inputText id="mesto" required="true" value="#{MBSnabdevac.selectSnabdevac.mesto}" size="50"> 
+                                <p:ajax update="mesto" event="keyup" />
+                            </p:inputText>
+                            <p:message for="mesto" display="icon" />                                                                                            
+                            
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBSnabdevac.selectSnabdevac}">
+                                <p:commandButton process="@form" update="frmIzmenaSn" action="#{MBSnabdevac.izmeniSnabdevaca()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('snDialogIzmeni').hide()">                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false"  onclick="PF('snDialogIzmeni').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="snDT" />
+                 </p:dialog>                
+
+                <p:dialog header="Потврда брисања" widgetVar="snDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="snDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiSn">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBSnabdevac.selectSnabdevac}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                            <h:outputText value="Назив:" />
+                            <h:outputLabel value="#{MBSnabdevac.selectSnabdevac.naziv}" />
+
+                            <h:outputText value="МБ:" />
+                            <h:outputLabel value="#{MBSnabdevac.selectSnabdevac.mb}" />                            
+                            
+                            <h:outputText value="Адреса:" />
+                            <h:outputLabel value="#{MBSnabdevac.selectSnabdevac.adresa}" />
+                            
+                            <h:outputText value="Место:" />
+                            <h:outputLabel value="#{MBSnabdevac.selectSnabdevac.mesto}" />                            
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBSnabdevac.selectSnabdevac}">
+                                <p:commandButton process="@form" action="#{MBSnabdevac.brisiSnabdevaca()}" value="Бриши" oncomplete="PF('snDialogBrisi').hide()">                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани"  onclick="PF('snDialogBrisi').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="snDT" />                                        
+                 </p:dialog>
+                
+                </h:form>
+            </ui:define>
+
+            <ui:define name="bottom">                
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

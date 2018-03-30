@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="testrep" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="aa29bc1d-2de6-4743-bb56-f0f8ece424b6">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="105"/>
+	<property name="ireport.y" value="3"/>
+	<field name="brojUgovora" class="java.lang.String"/>
+	<field name="kupac.naziv" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="1" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="71" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="145" height="27" uuid="9c47239a-f5d0-4833-8a3c-5a0d31dcd21b"/>
+				<imageExpression><![CDATA["C:\\Users\\Vladimir\\Pictures\\logo-eps-color.jpg"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="217" y="51" width="124" height="20" uuid="037270f7-3277-40b0-958c-2fa0071e7a54"/>
+				<textElement>
+					<font fontName="DejaVu Serif" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[САГЛАСНОСТ]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="27" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="15" y="36" width="540" height="20" uuid="932e668d-f0f3-45b3-b097-6e6012970905"/>
+				<textElement markup="html">
+					<font fontName="DejaVu Serif" pdfEncoding="Cp1250" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Купац " + $F{kupac.naziv} + " има сагласност ЈП ЕПС да пређе код другог снабдевача."]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="425" y="19" width="100" height="20" uuid="652d9fb1-47e6-476e-98e3-43e0679df066"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

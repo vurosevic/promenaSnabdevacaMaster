@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">                
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">                
+            </ui:define>
+
+            <ui:define name="content">
+                <h:form id="frmDatatableTc"> 
+                    
+                    <center>
+                    <p:dataTable  id="tcDT" style="width: 60%" emptyMessage="Нема података"
+                              value="#{MBTehnickiCentar.lazyModel}" var="tc" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{tc.id}"
+                              selection="#{MBTehnickiCentar.selectTc}" lazy="true">
+                    <f:facet name="header">
+                        <p:outputLabel value="Технички центри" />
+                    </f:facet>                     
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив</f:facet>
+                        #{tc.naziv_tc}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Адреса седишта</f:facet>
+                            #{tc.adresa_sedista}
+                    </p:column>  
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="tcDT" update=":frmDatatableTc:frmNoviTc:tcDetailNovi" oncomplete="PF('tcDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEdit" process="tcDT" update=":frmDatatableTc:tcDetailIzmeni" oncomplete="PF('tcDialogIzmeni').show()" disabled="#{empty MBTehnickiCentar.selectTc}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDelete" process="tcDT" update=":frmDatatableTc:tcDetailBrisi" oncomplete="PF('tcDialogBrisi').show()" disabled="#{empty MBTehnickiCentar.selectTc}"
+                                icon="ui ui-icon-close" value="Бриши"  />                                                            
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="tcDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="tcDT" />   
+                </p:dataTable>   
+                    </center>
+                    
+                <p:dialog header="Унос новог техничког центра" widgetVar="tcDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <h:form id="frmNoviTc">
+                    <p:messages style="color:red" autoUpdate="true" />                          
+                    <p:outputPanel id="tcDetailNovi" style="text-align:left;">                         	                        
+                        <p:panelGrid id="pgrid" columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBTehnickiCentar.noviTc.naziv_tc}" size="50">
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+                            
+                            <p:outputLabel for="adresa" value="Адреса седишта:" />
+                            <p:inputText id="adresa" required="true" value="#{MBTehnickiCentar.noviTc.adresa_sedista}" size="50">
+                                <p:ajax update="adresa" event="keyup" />
+                            </p:inputText>
+                            <p:message for="adresa" display="icon" />
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovi" update="pgrid" process="@form" action="#{MBTehnickiCentar.dodajNoviTc()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('tcDialogNovi').hide()" >                               
+                            </p:commandButton>
+                            <p:spacer width="15"/>
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('tcDialogNovi').hide()"/>                            
+                        </p:panel>                         
+                    </p:outputPanel>
+                    </h:form>
+                    <f:ajax event="close" render="frmDatatableTc" />                     
+                 </p:dialog>                 
+                
+                <p:dialog header="Ажурирање техничког центра" widgetVar="tcDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="tcDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaTc">
+                            <p:messages style="color:red" autoUpdate="true" />     
+                            <p:panelGrid id="pgrid" columns="3" rendered="#{not empty MBTehnickiCentar.selectTc}" columnClasses="label,value" class="panelGridNoBorderDialog" > 
+                                <p:outputLabel for="naziv" value="Назив:" />
+                                <p:inputText id="naziv" required="true" value="#{MBTehnickiCentar.selectTc.naziv_tc}" size="50">
+                                    <p:ajax update="naziv" event="keyup" />
+                                </p:inputText>
+                                <p:message for="naziv" display="icon" />
+ 
+                                <p:outputLabel for="adresa" value="Адреса седишта:" />
+                                <p:inputText id="adresa" required="true" value="#{MBTehnickiCentar.selectTc.adresa_sedista}" size="50">
+                                        <p:ajax update="adresa" event="keyup" />                                
+                                </p:inputText>
+                                <p:message for="adresa" display="icon" />
+
+                        </p:panelGrid>
+                        <p:panel rendered="#{not empty MBTehnickiCentar.selectTc}">
+                            <p:commandButton update="pgrid" process="@form" action="#{MBTehnickiCentar.izmeniTc()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('tcDialogIzmeni').hide()">                               
+                            </p:commandButton>
+                             <p:spacer width="15"/>
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('tcDialogIzmeni').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="tcDT" />
+                 </p:dialog>                
+
+                <p:dialog header="Потврда брисања" widgetVar="tcDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="tcDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiTc">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBTehnickiCentar.selectTc}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                            <h:outputText value="Назив:" />
+                            <h:outputLabel value="#{MBTehnickiCentar.selectTc.naziv_tc}" />
+ 
+                            <h:outputText value="Адреса седишта:" />
+                            <h:outputLabel value="#{MBTehnickiCentar.selectTc.adresa_sedista}" />
+
+                        </p:panelGrid>
+                        <p:panel rendered="#{not empty MBTehnickiCentar.selectTc}">
+                            <p:commandButton process="@form" action="#{MBTehnickiCentar.brisiTc()}" value="Бриши" oncomplete="PF('tcDialogBrisi').hide()">                               
+                            </p:commandButton>
+                            <p:spacer width="15"/>
+                            <p:commandButton value="Одустани"  onclick="PF('tcDialogBrisi').hide()"/>                            
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="tcDT" />                                        
+                 </p:dialog>
+                </h:form>
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>        
+    </body>
+</html>

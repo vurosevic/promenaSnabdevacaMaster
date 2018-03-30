@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <body>
+
+        <ui:composition template="./masterPage.xhtml">
+
+            <ui:define name="top">                
+            </ui:define>
+
+            <ui:define name="left">
+            </ui:define>
+
+            <ui:define name="right">
+            </ui:define>
+
+            <ui:define name="content">
+                <h:form id="frmDatatableTd">   
+                <center>
+                <p:dataTable  id="tdDT" style="width: 60%" 
+                              value="#{MBTipDokumenta.lazyModel}" var="td" paginator="true" rows="10"                                
+                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                              rowsPerPageTemplate="5,10,15" rowKey="#{td.id}"
+                              selection="#{MBTipDokumenta.selectTipDokumenta}" lazy="true">
+                    <f:facet name="header">
+                        <p:outputLabel value="Типови докумената" />
+                    </f:facet>                    
+                    <p:column selectionMode="single" style="width:16px;text-align:center"/>
+                    <p:column>
+                        <f:facet name="header" >Назив типа</f:facet>
+                        #{td.naziv}
+                    </p:column>    
+                    <p:column>
+                        <f:facet name="header" >Опис</f:facet>
+                            #{td.opis}
+                    </p:column>  
+                    <f:facet name="footer">
+                        <div style="text-align:left">                                                    
+                            <p:commandButton process="tdDT" update=":frmDatatableTd:tdDetailNovi" oncomplete="PF('tdDialogNovi').show()" 
+                                icon="ui ui-icon-plus" value="Додај"  />
+                            <p:commandButton id="btnEdit" process="tdDT" update=":frmDatatableTd:tdDetailIzmeni" oncomplete="PF('tdDialogIzmeni').show()" disabled="#{empty MBTipDokumenta.selectTipDokumenta}" 
+                                icon="ui ui-icon-pencil" value="Измени"  />                    
+                            <p:commandButton id="btnDelete" process="tdDT" update=":frmDatatableTd:tdDetailBrisi" oncomplete="PF('tdDialogBrisi').show()" disabled="#{empty MBTipDokumenta.selectTipDokumenta}"
+                                icon="ui ui-icon-close" value="Бриши"  />                                                            
+                        </div>
+                 </f:facet>       
+                    <f:ajax event="rowSelectRadio" render="tdDT" />       
+                    <f:ajax event="rowUnselectCheckbox" render="tdDT" />   
+                </p:dataTable>   
+                </center>
+                <p:dialog header="Унос новог типа документа" widgetVar="tdDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                    <p:messages style="color:red" autoUpdate="true" />   
+                    <p:outputPanel id="tdDetailNovi" style="text-align:left;">
+                        <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
+
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBTipDokumenta.noviTipDokumenta.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+ 
+                            <p:outputLabel for="opis" value="Опис:" />
+                            <p:inputText id="opis" value="#{MBTipDokumenta.noviTipDokumenta.opis}" />
+                            <p:spacer/>
+                            
+                        </p:panelGrid>
+                        <p:panel >
+                            <p:commandButton id="btnNovi" update="tdDetailNovi" process="@form" action="#{MBTipDokumenta.dodajNoviTipDokumenta()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('tdDialogNovi').hide();" >                               
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false" onclick="PF('tdDialogNovi').hide()"/>                            
+                        </p:panel>                         
+                    </p:outputPanel>
+                    <f:ajax event="close" render="frmDatatableTd" /> 
+                 </p:dialog>                 
+                
+                <p:dialog header="Ажурирање типа документа" widgetVar="tdDialogIzmeni" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">     
+                    <p:messages style="color:red" autoUpdate="true" /> 
+                    <p:outputPanel id="tdDetailIzmeni" style="text-align:left;">
+                        <h:form id="frmIzmenaTd">
+                            <p:panelGrid  columns="3" rendered="#{not empty MBTipDokumenta.selectTipDokumenta}" columnClasses="label,value" class="panelGridNoBorderDialog">
+ 
+                            <p:outputLabel for="naziv" value="Назив:" />
+                            <p:inputText id="naziv" required="true" value="#{MBTipDokumenta.selectTipDokumenta.naziv}" >
+                                <p:ajax update="naziv" event="keyup" />
+                            </p:inputText>
+                            <p:message for="naziv" display="icon" />
+ 
+                            <p:outputLabel for="opis" value="Опис:" />
+                            <p:inputText id="opis" value="#{MBTipDokumenta.selectTipDokumenta.opis}" />
+                            <p:spacer/>
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBTipDokumenta.selectTipDokumenta}">
+                            <p:commandButton process="@form" update="frmIzmenaTd" action="#{MBTipDokumenta.azurirajTipDokumenta()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('tdDialogIzmeni').hide()"> 
+                            </p:commandButton>
+                            <p:spacer width="15" />
+                            <p:commandButton value="Одустани" ajax="false"  onclick="PF('tdDialogIzmeni').hide()"/>
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="tdDT" />
+                 </p:dialog>                
+
+                <p:dialog header="Потврда брисања" widgetVar="tdDialogBrisi" modal="true"                                                     
+                          showEffect="fade" hideEffect="fade" resizable="false">                    
+                    <p:outputPanel id="tdDetailBrisi" style="text-align:left;">
+                        <h:form id="frmBrisiTd">
+                            <p:panelGrid  columns="2" rendered="#{not empty MBTipDokumenta.selectTipDokumenta}" columnClasses="label,value" class="panelGridNoBorderDialog">        
+                            <h:outputText value="Назив:" />
+                            <h:outputLabel value="#{MBTipDokumenta.selectTipDokumenta.naziv}" />
+ 
+                            <h:outputText value="Опис:" />
+                            <h:outputLabel value="#{MBTipDokumenta.selectTipDokumenta.opis}" />
+
+                        </p:panelGrid>
+                            <p:panel rendered="#{not empty MBTipDokumenta.selectTipDokumenta}">
+                                <p:commandButton process="@form" action="#{MBTipDokumenta.brisiTipDokumenta()}" value="Бриши" oncomplete="PF('tdDialogBrisi').hide()"> 
+                            </p:commandButton>
+                            <p:spacer width="15"/>
+                            <p:commandButton value="Одустани"  onclick="PF('tdDialogBrisi').hide()"/> 
+                        </p:panel>                                                       
+                        </h:form>
+                    </p:outputPanel>
+                    <f:ajax event="close" render="tdDT" />                                        
+                 </p:dialog>
+                </h:form>
+            </ui:define>
+
+            <ui:define name="bottom">
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

@@ -50,8 +50,8 @@ public class MBUser {
 
     public MBUser() {
         noviUser = new User();
-        rolesNew = new DualListModel<>();
-        rolesSelect = new DualListModel<>();        
+        rolesNew = new DualListModel<String>( new ArrayList<String>(),  new ArrayList<String>());
+        rolesSelect = new DualListModel<String>( new ArrayList<String>(),  new ArrayList<String>());        
     }
     
     @PostConstruct
@@ -67,7 +67,7 @@ public class MBUser {
          source.add("ROLE_KOORDINATOR");         
          source.add("ROLE_FIN");
          source.add("ROLE_MANAGER");
-         rolesNew.setSource(source);
+         rolesNew.setSource(source);        
          rolesSelect.setSource(new ArrayList<String>()); 
     }     
 

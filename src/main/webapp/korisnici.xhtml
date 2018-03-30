@@ -60,6 +60,7 @@
                 <p:dialog header="Унос новог корисника" widgetVar="uDialogNovi" modal="true" showEffect="fade" hideEffect="fade" resizable="false">
                     <p:messages style="color:red" autoUpdate="true" />                     
                     <p:outputPanel id="uDetailNovi" style="text-align:left;">
+                        <h:form id="frmNoviUser">                            
                         <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
  
                             <p:outputLabel for="ime" value="Име:" />
@@ -79,16 +80,17 @@
                             <p:message for="password" display="icon"/>                                                        
                         </p:panelGrid>
                         <p:panelGrid  columns="3" rendered="true" columnClasses="label,value" class="panelGridNoBorderDialog">
-                            <p:outputLabel for="pickList" value="Привилегије корисника" /> <p:spacer/> <p:spacer/>
-                            <p:pickList id="pickList" required="true" value="#{MBUser.rolesNew}" var="rolesNew" itemLabel="#{rolesNew}" itemValue="#{rolesNew}" /><p:spacer/>
-                            <p:message for="pickList" display="icon" />                            
+                            <p:outputLabel for="pickListN" value="Привилегије корисника" /> <p:spacer/> <p:spacer/>
+                            <p:pickList id="pickListN" required="true" value="#{MBUser.rolesNew}" var="rolesNew" itemLabel="#{rolesNew}" itemValue="#{rolesNew}" /><p:spacer/>
+                            <p:message for="pickListN" display="icon" />
                         </p:panelGrid>
-                        <p:panel >
-                            <p:commandButton id="btnNovi" update="uDetailNovi" process="@form" action="#{MBUser.dodajNovogUsera()}" value="Сачувај" oncomplete="if (!args.validationFailed) PF('uDialogNovi').hide()" >                               
+                        <p:panel>
+                            <p:commandButton id="btnNovi" update="frmNoviUser" process="@form" action="#{MBUser.dodajNovogUsera()}" value="Сачувај" oncomplete="if (args &amp;&amp; !args.validationFailed) PF('uDialogNovi').hide()" >                               
                             </p:commandButton>
                             <p:spacer width="15" />
                             <p:commandButton value="Одустани" ajax="false" onclick="PF('uDialogNovi').hide()"/>                            
-                        </p:panel>                         
+                        </p:panel> 
+                        </h:form>
                     </p:outputPanel>
                     <f:ajax event="close" render="uDT" />
                  </p:dialog>                 
